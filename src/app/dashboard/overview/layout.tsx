@@ -8,7 +8,12 @@ import {
   CardAction,
   CardFooter
 } from '@/components/ui/card';
-import { IconTrendingDown, IconTrendingUp } from '@tabler/icons-react';
+import {
+  IconTrendingDown,
+  IconTrendingUp,
+  IconBell,
+  IconInfoCircle
+} from '@tabler/icons-react';
 import React from 'react';
 
 export default function OverViewLayout({
@@ -22,115 +27,234 @@ export default function OverViewLayout({
   bar_stats: React.ReactNode;
   area_stats: React.ReactNode;
 }) {
+  // Simulando dados do usuário (substitua pelos dados reais)
+  const userName = 'João Silva';
+  const notifications = [
+    { id: 1, text: 'Novo pedido recebido', time: '10 min atrás' },
+    { id: 2, text: 'Pagamento confirmado', time: '1 hora atrás' }
+  ];
+
   return (
     <PageContainer>
-      <div className='flex flex-1 flex-col space-y-2'>
-        <div className='flex items-center justify-between space-y-2'>
-          <h2 className='text-2xl font-bold tracking-tight'>
-            Hi, Welcome back 👋
-          </h2>
+      <div className='flex flex-1 flex-col space-y-4'>
+        {/* Cabeçalho com saudação e notificações */}
+        <div className='flex items-center justify-between'>
+          <div>
+            <h2 className='text-2xl font-bold tracking-tight'>
+              Olá, {userName} 👋
+            </h2>
+            <p className='text-muted-foreground'>
+              Aqui está o resumo do seu negócio
+            </p>
+          </div>
+
+          <div className='relative'>
+            <button className='rounded-full p-2 hover:bg-gray-100 dark:hover:bg-gray-800'>
+              <IconBell className='size-5' />
+              <span className='absolute top-0 right-0 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white'>
+                {notifications.length}
+              </span>
+            </button>
+          </div>
         </div>
 
+        {/* Área de notificações */}
+        <Card className='mb-4'>
+          <CardHeader>
+            <CardTitle className='flex items-center gap-2'>
+              <IconBell className='size-5' /> Notificações
+            </CardTitle>
+          </CardHeader>
+          <div className='px-6 pb-4'>
+            {notifications.length > 0 ? (
+              <ul className='space-y-3'>
+                {notifications.map((notification) => (
+                  <li
+                    key={notification.id}
+                    className='flex items-start gap-3 rounded-lg p-3 hover:bg-gray-50 dark:hover:bg-gray-800'
+                  >
+                    <div className='rounded-full bg-blue-100 p-2 dark:bg-blue-900'>
+                      <IconBell className='size-4 text-blue-600 dark:text-blue-300' />
+                    </div>
+                    <div>
+                      <p className='font-medium'>{notification.text}</p>
+                      <p className='text-muted-foreground text-sm'>
+                        {notification.time}
+                      </p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className='text-muted-foreground'>Nenhuma notificação nova</p>
+            )}
+          </div>
+        </Card>
+
+        {/* Estatísticas principais */}
         <div className='*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs md:grid-cols-2 lg:grid-cols-4'>
           <Card className='@container/card'>
             <CardHeader>
-              <CardDescription>Total Revenue</CardDescription>
+              <CardDescription>Ganhos Mensais</CardDescription>
               <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
-                $1,250.00
+                R$ 5.250,00
               </CardTitle>
               <CardAction>
                 <Badge variant='outline'>
                   <IconTrendingUp />
-                  +12.5%
+                  +8.5%
                 </Badge>
               </CardAction>
             </CardHeader>
             <CardFooter className='flex-col items-start gap-1.5 text-sm'>
               <div className='line-clamp-1 flex gap-2 font-medium'>
-                Trending up this month <IconTrendingUp className='size-4' />
+                Crescimento este mês <IconTrendingUp className='size-4' />
               </div>
               <div className='text-muted-foreground'>
-                Visitors for the last 6 months
+                Comparado ao mês anterior
               </div>
             </CardFooter>
           </Card>
+
           <Card className='@container/card'>
             <CardHeader>
-              <CardDescription>New Customers</CardDescription>
+              <CardDescription>Ganhos Anuais</CardDescription>
               <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
-                1,234
+                R$ 62.500,00
+              </CardTitle>
+              <CardAction>
+                <Badge variant='outline'>
+                  <IconTrendingUp />
+                  +15%
+                </Badge>
+              </CardAction>
+            </CardHeader>
+            <CardFooter className='flex-col items-start gap-1.5 text-sm'>
+              <div className='line-clamp-1 flex gap-2 font-medium'>
+                Crescimento anual <IconTrendingUp className='size-4' />
+              </div>
+              <div className='text-muted-foreground'>
+                Comparado ao ano anterior
+              </div>
+            </CardFooter>
+          </Card>
+
+          <Card className='@container/card'>
+            <CardHeader>
+              <CardDescription>Pagamentos Pendentes</CardDescription>
+              <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
+                R$ 3.780,00
               </CardTitle>
               <CardAction>
                 <Badge variant='outline'>
                   <IconTrendingDown />
-                  -20%
+                  -5%
                 </Badge>
               </CardAction>
             </CardHeader>
             <CardFooter className='flex-col items-start gap-1.5 text-sm'>
               <div className='line-clamp-1 flex gap-2 font-medium'>
-                Down 20% this period <IconTrendingDown className='size-4' />
+                Redução em relação ao mês passado{' '}
+                <IconTrendingDown className='size-4' />
               </div>
               <div className='text-muted-foreground'>
-                Acquisition needs attention
+                12 pedidos aguardando pagamento
               </div>
             </CardFooter>
           </Card>
+
           <Card className='@container/card'>
             <CardHeader>
-              <CardDescription>Active Accounts</CardDescription>
+              <CardDescription>Checkouts Realizados</CardDescription>
               <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
-                45,678
+                128
               </CardTitle>
               <CardAction>
                 <Badge variant='outline'>
                   <IconTrendingUp />
-                  +12.5%
+                  +22%
                 </Badge>
               </CardAction>
             </CardHeader>
             <CardFooter className='flex-col items-start gap-1.5 text-sm'>
               <div className='line-clamp-1 flex gap-2 font-medium'>
-                Strong user retention <IconTrendingUp className='size-4' />
+                Aumento nas conversões <IconTrendingUp className='size-4' />
               </div>
               <div className='text-muted-foreground'>
-                Engagement exceed targets
-              </div>
-            </CardFooter>
-          </Card>
-          <Card className='@container/card'>
-            <CardHeader>
-              <CardDescription>Growth Rate</CardDescription>
-              <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
-                4.5%
-              </CardTitle>
-              <CardAction>
-                <Badge variant='outline'>
-                  <IconTrendingUp />
-                  +4.5%
-                </Badge>
-              </CardAction>
-            </CardHeader>
-            <CardFooter className='flex-col items-start gap-1.5 text-sm'>
-              <div className='line-clamp-1 flex gap-2 font-medium'>
-                Steady performance increase{' '}
-                <IconTrendingUp className='size-4' />
-              </div>
-              <div className='text-muted-foreground'>
-                Meets growth projections
+                Taxa de conversão melhorada
               </div>
             </CardFooter>
           </Card>
         </div>
+
+        {/* Gráficos e tabelas */}
         <div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-7'>
-          <div className='col-span-4'>{bar_stats}</div>
-          <div className='col-span-4 md:col-span-3'>
-            {/* sales arallel routes */}
-            {sales}
+          <div className='col-span-4'>
+            <Card>
+              <CardHeader>
+                <CardTitle>Visão Geral dos Ganhos</CardTitle>
+              </CardHeader>
+              {bar_stats}
+            </Card>
           </div>
-          <div className='col-span-4'>{area_stats}</div>
-          <div className='col-span-4 md:col-span-3'>{pie_stats}</div>
+
+          <div className='col-span-4 md:col-span-3'>
+            <Card>
+              <CardHeader>
+                <CardTitle>Balanço de Pedidos</CardTitle>
+              </CardHeader>
+              {pie_stats}
+            </Card>
+          </div>
+
+          <div className='col-span-4'>
+            <Card>
+              <CardHeader>
+                <CardTitle>Histórico de Vendas</CardTitle>
+              </CardHeader>
+              {area_stats}
+            </Card>
+          </div>
+
+          <div className='col-span-4 md:col-span-3'>
+            <Card>
+              <CardHeader>
+                <CardTitle>Tabela de Pedidos Recentes</CardTitle>
+              </CardHeader>
+              {sales}
+            </Card>
+          </div>
         </div>
+
+        {/* Área de informações úteis */}
+        <Card className='mt-4'>
+          <CardHeader>
+            <CardTitle className='flex items-center gap-2'>
+              <IconInfoCircle className='size-5' /> Informações Úteis
+            </CardTitle>
+          </CardHeader>
+          <div className='grid grid-cols-1 gap-4 px-6 pb-4 md:grid-cols-2 lg:grid-cols-3'>
+            <div className='rounded-lg border p-4'>
+              <h3 className='mb-2 font-medium'>Dicas de Vendas</h3>
+              <p className='text-muted-foreground text-sm'>
+                Seus produtos mais vendidos estão com estoque baixo. Considere
+                repor.
+              </p>
+            </div>
+            <div className='rounded-lg border p-4'>
+              <h3 className='mb-2 font-medium'>Suporte Rápido</h3>
+              <p className='text-muted-foreground text-sm'>
+                Problemas com pagamentos? Contate nosso suporte imediatamente.
+              </p>
+            </div>
+            <div className='rounded-lg border p-4'>
+              <h3 className='mb-2 font-medium'>Novidades</h3>
+              <p className='text-muted-foreground text-sm'>
+                Nova atualização disponível! Melhorias no painel de controle.
+              </p>
+            </div>
+          </div>
+        </Card>
       </div>
     </PageContainer>
   );

@@ -30,7 +30,22 @@ import {
   IconUserX,
   IconX,
   IconLayoutKanban,
-  IconBrandGithub
+  IconBrandGithub,
+  // Ícones verificados que existem no Tabler v2/v3:
+  IconRocket,
+  IconPlug,
+  IconShoppingCart,
+  IconSpider,
+  IconDeviceMobile,
+  IconKey,
+  IconCurrencyDollar,
+  IconWallet,
+  IconRefresh,
+  IconChartBar,
+  IconSpeakerphone,
+  IconShield,
+  IconLogout,
+  IconAdjustments // Para "Personalizar"
 } from '@tabler/icons-react';
 
 export type Icon = React.ComponentType<IconProps>;
@@ -66,5 +81,21 @@ export const Icons = {
   laptop: IconDeviceLaptop,
   github: IconBrandGithub,
   twitter: IconBrandTwitter,
-  check: IconCheck
+  check: IconCheck,
+  // Ícones atualizados com nomes corretos:
+  rocket: IconRocket, // Começar
+  plug: IconPlug, // Integração
+  shoppingCart: IconShoppingCart, // Checkout
+  sliders: IconAdjustments, // Personalizar Checkout (IconSlider existe mas IconAdjustments é mais comum)
+  smartphone: IconDeviceMobile, // App (nome correto)
+  key: IconKey,
+  fileText: IconKey, // Credenciais
+  mousePointer: IconKey, // Botões (nome mais apropriado)
+  dollarSign: IconCurrencyDollar, // Financeiro (nome oficial)
+  wallet: IconWallet, // Carteira
+  refreshCw: IconRefresh, // Reembolsos (nome simplificado)
+  barChart: IconChartBar, // Análises
+  megaphone: IconSpeakerphone, // Marketing
+  shield: IconShield, // Privacidade
+  logOut: IconLogout // Sair (nome oficial)
 };

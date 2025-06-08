@@ -19,47 +19,136 @@ export const navItems: NavItem[] = [
     icon: 'dashboard',
     isActive: false,
     shortcut: ['d', 'd'],
-    items: [] // Empty array as there are no child items for Dashboard
+    items: []
   },
   {
-    title: 'Product',
-    url: '/dashboard/product',
-    icon: 'product',
-    shortcut: ['p', 'p'],
+    title: 'Começar',
+    url: '/dashboard/get-started',
+    icon: 'rocket',
     isActive: false,
-    items: [] // No child items
+    shortcut: ['c', 'c'],
+    items: []
   },
   {
-    title: 'Account',
-    url: '#', // Placeholder as there is no direct link for the parent
-    icon: 'billing',
-    isActive: true,
-
+    title: 'Integração',
+    url: '/dashboard/integration',
+    icon: 'plug',
+    isActive: false,
+    shortcut: ['i', 'i'],
+    items: []
+  },
+  {
+    title: 'Checkout',
+    url: '#',
+    icon: 'shoppingCart',
+    isActive: false,
     items: [
       {
-        title: 'Profile',
-        url: '/dashboard/profile',
-        icon: 'userPen',
-        shortcut: ['m', 'm']
+        title: 'Personalizar Checkout',
+        url: '/dashboard/checkout/customize',
+        icon: 'sliders'
       },
       {
-        title: 'Login',
-        shortcut: ['l', 'l'],
-        url: '/',
-        icon: 'login'
+        title: 'Configurações',
+        url: '/dashboard/checkout/settings',
+        icon: 'settings'
       }
     ]
   },
   {
-    title: 'Kanban',
-    url: '/dashboard/kanban',
-    icon: 'kanban',
-    shortcut: ['k', 'k'],
+    title: 'App',
+    url: '#',
+    icon: 'smartphone',
     isActive: false,
-    items: [] // No child items
+    items: [
+      {
+        title: 'Credenciais',
+        url: '/dashboard/app/credentials',
+        icon: 'key'
+      },
+      {
+        title: 'Botões',
+        url: '/dashboard/app/buttons',
+        icon: 'mousePointer'
+      }
+    ]
+  },
+  {
+    title: 'Financeiro',
+    url: '#',
+    icon: 'dollarSign',
+    isActive: false,
+    items: [
+      {
+        title: 'Carteira - Saques',
+        url: '/dashboard/finance/wallet',
+        icon: 'wallet'
+      },
+      {
+        title: 'Reembolsos',
+        url: '/dashboard/finance/refunds',
+        icon: 'refreshCw'
+      }
+    ]
+  },
+  {
+    title: 'Análises',
+    url: '/dashboard/analytics',
+    icon: 'barChart',
+    isActive: false,
+    shortcut: ['a', 'a'],
+    items: []
+  },
+  {
+    title: 'Marketing',
+    url: '/dashboard/marketing',
+    icon: 'megaphone',
+    isActive: false,
+    shortcut: ['m', 'm'],
+    items: []
+  },
+  {
+    title: 'Configurações',
+    url: '#',
+    icon: 'settings',
+    isActive: false,
+    items: [
+      {
+        title: 'Privacidade',
+        url: '/dashboard/settings/privacy',
+        icon: 'shield'
+      },
+      {
+        title: 'Termos e Condições',
+        url: '/dashboard/settings/terms',
+        icon: 'fileText'
+      },
+      {
+        title: 'Configurações Gerais',
+        url: '/dashboard/settings/general',
+        icon: 'settings'
+      }
+    ]
+  },
+  {
+    title: 'Minha Conta',
+    url: '#',
+    icon: 'user',
+    isActive: false,
+    items: [
+      {
+        title: 'Perfil',
+        url: '/dashboard/account/profile',
+        icon: 'userPen'
+      },
+      {
+        title: 'Sair',
+        url: '/logout',
+        icon: 'logOut'
+      }
+    ]
   }
 ];
-
 export interface SaleUser {
   id: number;
   name: string;
