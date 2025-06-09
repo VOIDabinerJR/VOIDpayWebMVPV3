@@ -11,6 +11,21 @@ export type Product = {
   updated_at: string;
 };
 
+export interface App {
+  id: string;
+  name: string;
+  description: string;
+  client_id: string;
+  client_secret?: string; // Opcional para segurança
+  status: 'active' | 'inactive' | 'suspended';
+  environment: 'sandbox' | 'production';
+  created_at: string;
+  updated_at: string;
+  last_used?: string;
+  webhook_url?: string;
+  ip_restrictions?: string[];
+  permissions: string[];
+}
 //Info: The following data is used for the sidebar navigation and Cmd K bar.
 export const navItems: NavItem[] = [
   {

@@ -4,7 +4,7 @@
 
 import { faker } from '@faker-js/faker';
 import { matchSorter } from 'match-sorter'; // For filtering
-
+import { App } from './data';
 export const delay = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -153,5 +153,65 @@ export const fakeProducts = {
   }
 };
 
+export const mockApps = {
+  getApps: async (filters: any) => {
+    // Simulação de delay de API
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    const mockData: App[] = [
+      {
+        id: 'app_1',
+        name: 'E-commerce Store',
+        description: 'Main online store integration',
+        client_id: 'client_123456',
+        status: 'active',
+        environment: 'production',
+        created_at: '2023-01-15',
+        updated_at: '2023-06-20',
+        last_used: '2023-06-25T14:30:00Z',
+        webhook_url: 'https://store.com/api/webhooks',
+        ip_restrictions: ['192.168.1.1'],
+        permissions: ['payments_read', 'payments_write']
+      },
+      {
+        id: 'app_2',
+        name: 'Mobile App',
+        description: 'Android application',
+        client_id: 'client_789012',
+        status: 'active',
+        environment: 'sandbox',
+        created_at: '2023-03-10',
+        updated_at: '2023-06-18',
+        last_used: '2023-06-24T09:15:00Z',
+        permissions: ['payments_read']
+      }
+      // Adicione mais apps conforme necessário
+    ];
+    // Aplicar filtros
+    let filteredData = [...mockData];
+
+    if (filters.search) {
+      filteredData = filteredData.filter(
+        (app) =>
+          app.name.toLowerCase().includes(filters.search.toLowerCase()) ||
+          app.description?.toLowerCase().includes(filters.search.toLowerCase())
+      );
+    }
+
+    // Paginação correta
+    const page = filters.page || 1;
+    const limit = filters.limit || 10;
+    const startIndex = (page - 1) * limit;
+    const paginatedData = filteredData.slice(startIndex, startIndex + limit);
+
+    return {
+      total_apps: filteredData.length,
+      apps: paginatedData,
+      page,
+      limit,
+      total_pages: Math.ceil(filteredData.length / limit)
+    };
+  }
+};
 // Initialize sample products
 fakeProducts.initialize();
