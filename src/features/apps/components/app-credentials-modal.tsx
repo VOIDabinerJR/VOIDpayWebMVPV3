@@ -43,7 +43,7 @@ export default function AppCredentialsModal({
     navigator.clipboard.writeText(text);
     setCopied((prev) => ({ ...prev, [field]: true }));
     toast.success(
-      `${field === 'client_id' ? 'Client ID' : 'Client Secret'} copied to clipboard`
+      `${field === 'client_id' ? 'Client ID' : 'Client Secret'} copiado para a área de transferência`
     );
     setTimeout(() => setCopied((prev) => ({ ...prev, [field]: false })), 2000);
   };
@@ -54,10 +54,10 @@ export default function AppCredentialsModal({
     try {
       setIsRotating(true);
       await onRotateCredentials(app.id);
-      toast.success('Credentials rotated successfully');
-      setShowSecret(false); // Hide the secret after rotation
+      toast.success('Credenciais renovadas com sucesso');
+      setShowSecret(false); // Oculta o segredo após renovação
     } catch (error) {
-      toast.error('Failed to rotate credentials');
+      toast.error('Falha ao renovar credenciais');
     } finally {
       setIsRotating(false);
     }
@@ -69,7 +69,7 @@ export default function AppCredentialsModal({
         {children || (
           <Button variant='outline'>
             <IconKey className='mr-2 h-4 w-4' />
-            View Credentials
+            Ver Credenciais
           </Button>
         )}
       </DialogTrigger>
@@ -79,7 +79,7 @@ export default function AppCredentialsModal({
           <DialogTitle>
             <div className='flex items-center gap-2'>
               <IconKey className='h-5 w-5' />
-              {app?.name || 'App'} Credentials
+              Credenciais do {app?.name || 'App'}
             </div>
           </DialogTitle>
         </DialogHeader>
@@ -121,7 +121,7 @@ export default function AppCredentialsModal({
                 className='h-auto p-0 text-xs'
                 onClick={() => setShowSecret(!showSecret)}
               >
-                {showSecret ? 'Hide' : 'Show'} Secret
+                {showSecret ? 'Ocultar' : 'Mostrar'} Segredo
               </Button>
             </div>
             <div className='flex gap-2'>
@@ -130,7 +130,7 @@ export default function AppCredentialsModal({
                 type={showSecret ? 'text' : 'password'}
                 value={
                   showSecret
-                    ? app?.client_secret || 'Not available'
+                    ? app?.client_secret || 'Não disponível'
                     : '••••••••••••••••'
                 }
                 readOnly
@@ -154,22 +154,22 @@ export default function AppCredentialsModal({
             </div>
             {app?.client_secret && (
               <p className='text-muted-foreground text-xs'>
-                Created at: {new Date(app.created_at).toLocaleString()}
+                Criado em: {new Date(app.created_at).toLocaleString()}
               </p>
             )}
           </div>
 
-          {/* Security Warning */}
+          {/* Aviso de Segurança */}
           <div className='rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-200'>
-            <p className='font-medium'>Security Notice</p>
+            <p className='font-medium'>Aviso de Segurança</p>
             <ul className='mt-1 list-inside list-disc space-y-1'>
-              <li>Keep your credentials confidential</li>
-              <li>Never share your Client Secret in client-side code</li>
-              <li>Rotate credentials immediately if compromised</li>
+              <li>Mantenha suas credenciais confidenciais</li>
+              <li>Nunca compartilhe seu Client Secret em código client-side</li>
+              <li>Renove as credenciais imediatamente se comprometidas</li>
             </ul>
           </div>
 
-          {/* Actions */}
+          {/* Ações */}
           <div className='flex justify-end gap-2 pt-2'>
             <Button
               variant='destructive'
@@ -177,7 +177,7 @@ export default function AppCredentialsModal({
               disabled={isRotating || !onRotateCredentials}
             >
               <IconRefresh className='mr-2 h-4 w-4' />
-              {isRotating ? 'Rotating...' : 'Rotate Credentials'}
+              {isRotating ? 'Renovando...' : 'Renovar Credenciais'}
             </Button>
           </div>
         </div>
