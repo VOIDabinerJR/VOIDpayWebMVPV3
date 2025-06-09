@@ -20,15 +20,17 @@ export default function OverViewLayout({
   sales,
   pie_stats,
   bar_stats,
-  area_stats
+  area_stats,
+  last_payments
 }: {
   sales: React.ReactNode;
   pie_stats: React.ReactNode;
   bar_stats: React.ReactNode;
   area_stats: React.ReactNode;
+  last_payments: React.ReactNode;
 }) {
   // Simulando dados do usuário (substitua pelos dados reais)
-  const userName = 'João Silva';
+  const userName = 'Abiner Maleiane';
   const notifications = [
     { id: 1, text: 'Novo pedido recebido', time: '10 min atrás' },
     { id: 2, text: 'Pagamento confirmado', time: '1 hora atrás' }
@@ -58,46 +60,13 @@ export default function OverViewLayout({
           </div>
         </div>
 
-        {/* Área de notificações */}
-        <Card className='mb-4'>
-          <CardHeader>
-            <CardTitle className='flex items-center gap-2'>
-              <IconBell className='size-5' /> Notificações
-            </CardTitle>
-          </CardHeader>
-          <div className='px-6 pb-4'>
-            {notifications.length > 0 ? (
-              <ul className='space-y-3'>
-                {notifications.map((notification) => (
-                  <li
-                    key={notification.id}
-                    className='flex items-start gap-3 rounded-lg p-3 hover:bg-gray-50 dark:hover:bg-gray-800'
-                  >
-                    <div className='rounded-full bg-blue-100 p-2 dark:bg-blue-900'>
-                      <IconBell className='size-4 text-blue-600 dark:text-blue-300' />
-                    </div>
-                    <div>
-                      <p className='font-medium'>{notification.text}</p>
-                      <p className='text-muted-foreground text-sm'>
-                        {notification.time}
-                      </p>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className='text-muted-foreground'>Nenhuma notificação nova</p>
-            )}
-          </div>
-        </Card>
-
         {/* Estatísticas principais */}
         <div className='*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs md:grid-cols-2 lg:grid-cols-4'>
           <Card className='@container/card'>
             <CardHeader>
               <CardDescription>Ganhos Mensais</CardDescription>
               <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
-                R$ 5.250,00
+                5.250 MTn
               </CardTitle>
               <CardAction>
                 <Badge variant='outline'>
@@ -120,7 +89,7 @@ export default function OverViewLayout({
             <CardHeader>
               <CardDescription>Ganhos Anuais</CardDescription>
               <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
-                R$ 62.500,00
+                2.500 MTn
               </CardTitle>
               <CardAction>
                 <Badge variant='outline'>
@@ -143,7 +112,7 @@ export default function OverViewLayout({
             <CardHeader>
               <CardDescription>Pagamentos Pendentes</CardDescription>
               <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
-                R$ 3.780,00
+                350 MTn
               </CardTitle>
               <CardAction>
                 <Badge variant='outline'>
@@ -225,6 +194,8 @@ export default function OverViewLayout({
             </Card>
           </div>
         </div>
+
+        {last_payments}
 
         {/* Área de informações úteis */}
         <Card className='mt-4'>

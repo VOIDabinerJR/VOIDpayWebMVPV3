@@ -1,7 +1,7 @@
 'use client';
 
 import { IconTrendingUp } from '@tabler/icons-react';
-import { Area, AreaChart, CartesianGrid, XAxis } from 'recharts';
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis, ResponsiveContainer } from 'recharts';
 
 import {
   Card,
@@ -18,36 +18,67 @@ import {
   ChartTooltipContent
 } from '@/components/ui/chart';
 
-const chartData = [
-  { month: 'January', desktop: 186, mobile: 80 },
-  { month: 'February', desktop: 305, mobile: 200 },
-  { month: 'March', desktop: 237, mobile: 120 },
-  { month: 'April', desktop: 73, mobile: 190 },
-  { month: 'May', desktop: 209, mobile: 130 },
-  { month: 'June', desktop: 214, mobile: 140 }
+const paymentHistoryData = [
+  { 
+    month: 'Jan/24', 
+    mpesa: 8500, 
+    emola: 3200,
+    visa: 800 
+  },
+  { 
+    month: 'Fev/24', 
+    mpesa: 12500, 
+    emola: 6500,
+    visa: 2800 
+  },
+  { 
+    month: 'Mar/24', 
+    mpesa: 11000, 
+    emola: 6000,
+    visa: 2500 
+  },
+  { 
+    month: 'Abr/24', 
+    mpesa: 9000, 
+    emola: 4500,
+    visa: 1700 
+  },
+  { 
+    month: 'Mai/24', 
+    mpesa: 18000, 
+    emola: 7500,
+    visa: 3200 
+  },
+  { 
+    month: 'Jun/24', 
+    mpesa: 16000, 
+    emola: 8000,
+    visa: 2500 
+  }
 ];
 
 const chartConfig = {
-  visitors: {
-    label: 'Visitors'
-  },
-  desktop: {
-    label: 'Desktop',
+  mpesa: {
+    label: 'MPesa',
     color: 'var(--primary)'
   },
-  mobile: {
-    label: 'Mobile',
-    color: 'var(--primary)'
+  emola: {
+    label: 'Emola',
+    color: 'var(--secondary)'
+  },
+  visa: {
+    label: 'Visa',
+    color: 'var(--accent)'
   }
 } satisfies ChartConfig;
 
-export function AreaGraph() {
+export function PaymentMethodsAreaChart() {
   return (
     <Card className='@container/card'>
       <CardHeader>
-        <CardTitle>Area Chart - Stacked</CardTitle>
+        <CardTitle>Métodos de Pagamento</CardTitle>
         <CardDescription>
-          Showing total visitors for the last 6 months
+          Histórico de vendas por método de pagamento nos últimos 6 meses
         </CardDescription>
       </CardHeader>
       <CardContent className='px-2 pt-4 sm:px-6 sm:pt-6'>
@@ -56,64 +87,99 @@ export function AreaGraph() {
           className='aspect-auto h-[250px] w-full'
         >
           <AreaChart
-            data={chartData}
+            data={paymentHistoryData}
             margin={{
               left: 12,
-              right: 12
+              right: 12,
+              top: 12,
+              bottom: 12
             }}
           >
             <defs>
-              <linearGradient id='fillDesktop' x1='0' y1='0' x2='0' y2='1'>
+              <linearGradient id='fillMpesa' x1='0' y1='0' x2='0' y2='1'>
                 <stop
                   offset='5%'
-                  stopColor='var(--color-desktop)'
+                  stopColor='var(--color-mpesa)'
                   stopOpacity={1.0}
                 />
                 <stop
                   offset='95%'
-                  stopColor='var(--color-desktop)'
+                  stopColor='var(--color-mpesa)'
                   stopOpacity={0.1}
                 />
               </linearGradient>
-              <linearGradient id='fillMobile' x1='0' y1='0' x2='0' y2='1'>
+              <linearGradient id='fillEmola' x1='0' y1='0' x2='0' y2='1'>
                 <stop
                   offset='5%'
-                  stopColor='var(--color-mobile)'
+                  stopColor='var(--color-emola)'
                   stopOpacity={0.8}
                 />
                 <stop
                   offset='95%'
-                  stopColor='var(--color-mobile)'
+                  stopColor='var(--color-emola)'
+                  stopOpacity={0.1}
+                />
+              </linearGradient>
+              <linearGradient id='fillVisa' x1='0' y1='0' x2='0' y2='1'>
+                <stop
+                  offset='5%'
+                  stopColor='var(--color-visa)'
+                  stopOpacity={0.8}
+                />
+                <stop
+                  offset='95%'
+                  stopColor='var(--color-visa)'
                   stopOpacity={0.1}
                 />
               </linearGradient>
             </defs>
-            <CartesianGrid vertical={false} />
+            <CartesianGrid vertical={false} strokeDasharray="3 3" />
             <XAxis
               dataKey='month'
               tickLine={false}
               axisLine={false}
               tickMargin={8}
               minTickGap={32}
-              tickFormatter={(value) => value.slice(0, 3)}
+            />
+            <YAxis 
+              tickLine={false}
+              axisLine={false}
+              tickFormatter={(value) => `R$ ${value / 1000}k`}
             />
             <ChartTooltip
               cursor={false}
-              content={<ChartTooltipContent indicator='dot' />}
+              content={<ChartTooltipContent 
+                formatter={(value, name) => {
+                  return [`R$ ${value.toLocaleString()}`, 
+                    name === 'mpesa' ? 'MPesa' : 
+                    name === 'emola' ? 'Emola' : 'Visa'];
+                }}
+                indicator='dot'
+              />}
             />
             <Area
-              dataKey='mobile'
-              type='natural'
-              fill='url(#fillMobile)'
-              stroke='var(--color-mobile)'
-              stackId='a'
+              dataKey='mpesa'
+              type='monotone'
+              fill='url(#fillMpesa)'
+              stroke='var(--color-mpesa)'
+              strokeWidth={2}
+              activeDot={{ r: 6 }}
             />
             <Area
-              dataKey='desktop'
-              type='natural'
-              fill='url(#fillDesktop)'
-              stroke='var(--color-desktop)'
-              stackId='a'
+              dataKey='emola'
+              type='monotone'
+              fill='url(#fillEmola)'
+              stroke='var(--color-emola)'
+              strokeWidth={2}
+              activeDot={{ r: 6 }}
+            />
+            <Area
+              dataKey='visa'
+              type='monotone'
+              fill='url(#fillVisa)'
+              stroke='var(--color-visa)'
+              strokeWidth={2}
+              activeDot={{ r: 6 }}
             />
           </AreaChart>
         </ChartContainer>
@@ -122,11 +188,11 @@ export function AreaGraph() {
         <div className='flex w-full items-start gap-2 text-sm'>
           <div className='grid gap-2'>
             <div className='flex items-center gap-2 leading-none font-medium'>
-              Trending up by 5.2% this month{' '}
+              Crescimento de 15.2% nos pagamentos por MPesa{' '}
               <IconTrendingUp className='h-4 w-4' />
             </div>
             <div className='text-muted-foreground flex items-center gap-2 leading-none'>
-              January - June 2024
+              Janeiro - Junho 2024
             </div>
           </div>
         </div>
