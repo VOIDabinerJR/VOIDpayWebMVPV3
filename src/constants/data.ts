@@ -16,7 +16,7 @@ export interface App {
   name: string;
   description: string;
   client_id: string;
-  client_secret?: string; // Opcional para segurança
+  // client_secret?: string; // Opcional para segurança
   status: 'active' | 'inactive' | 'suspended';
   environment: 'sandbox' | 'production';
   created_at: string;

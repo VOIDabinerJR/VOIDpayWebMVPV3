@@ -30,9 +30,9 @@ export function AppsTable<TData, TValue>({
   });
 
   return (
-    <div className='space-y-4'>
+  <DataTable table={table}>
       <DataTableToolbar table={table} />
-      <DataTable table={table} />
-    </div>
+  
+    </DataTable>
   );
 }
