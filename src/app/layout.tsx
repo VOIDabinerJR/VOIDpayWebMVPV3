@@ -16,8 +16,8 @@ const META_THEME_COLORS = {
 };
 
 export const metadata: Metadata = {
-  title: 'Next Shadcn',
-  description: 'Basic dashboard with Next.js and Shadcn'
+  title: 'VoidPay',
+  description: 'Plataforma de Processamento de Pagamentosn'
 };
 
 export const viewport: Viewport = {
