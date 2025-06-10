@@ -418,7 +418,7 @@ export default function RefundsPage() {
           <Card className="shadow-sm">
             <CardHeader className="flex flex-row items-center justify-between p-4 pb-2">
               <CardTitle className="text-base sm:text-lg font-bold text-blue-600">
-                Revenue Sources
+                Fontes de receita
               </CardTitle>
               <PieChart className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
             </CardHeader>
