@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import SignInViewPage from '@/features/auth/components/sign-in-view';
 
 export const metadata: Metadata = {
-  title: 'VoidPay Platform',
+  title: 'VoidPay ',
   description:
     'Crie sua conta gratuita na Muffins AI e comece a desenvolver com nossos modelos de linguagem. Acesso instantâneo à API + créditos de teste gratuitos.',
   keywords: [
