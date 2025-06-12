@@ -1,8 +1,9 @@
+"use client";
 import { SignIn as ClerkSignInForm } from '@clerk/nextjs';
 import { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
-import {   useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export const metadata: Metadata = {
   title: 'Authentication',
@@ -10,7 +11,7 @@ export const metadata: Metadata = {
 };
 
 export default function SignInViewPage() {
- const [stars, setStars] = useState<React.ReactNode[]>([]);
+  const [stars, setStars] = useState<React.ReactNode[]>([]);
 
   useEffect(() => {
     const generateStars = () => {
@@ -34,14 +35,14 @@ export default function SignInViewPage() {
 
     generateStars();
   }, []);
- 
+
 
   return (
-    
+
     <div className="relative flex h-screen w-screen items-center justify-center bg-black">
       {/* Fundo escuro com opacidade */}
-       {/* Estrelas animadas */}
-    {stars}
+      {/* Estrelas animadas */}
+      {stars}
       <div className="absolute inset-0 bg-black opacity-80" />
 
       {/* Conteúdo principal centralizado */}
@@ -49,10 +50,10 @@ export default function SignInViewPage() {
         {/* Logo acima do formulário */}
         <div className="flex items-center space-x-3 mb-4">
           <Image
-            src="/img/logo.png"
+            src="/img/Logo.svg"
             alt="Logo da Plataforma Muffins AI"
-            width={50}
-            height={50}
+            width={65}
+            height={65}
             className="rounded-full shadow-lg"
           />
           {/* <span className="text-white text-xl font-semibold">
