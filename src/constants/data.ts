@@ -51,6 +51,13 @@ export const navItems: NavItem[] = [
     isActive: false,
     shortcut: ['i', 'i'],
     items: []
+  }, {
+    title: 'Links de Pagamento',
+    url: '/dashboard/payment-links',
+    icon: 'plug',
+    isActive: false,
+    shortcut: ['i', 'i'],
+    items: []
   },
   {
     title: 'Checkout',
@@ -71,19 +78,34 @@ export const navItems: NavItem[] = [
     ]
   },
   {
-    title: 'App',
+    title: 'Credenciais',
     url: '#',
     icon: 'smartphone',
     isActive: false,
     items: [
       {
-        title: 'Credenciais',
-        url: '/dashboard/app/credentials',
+        title: 'Apps',
+        url: '/dashboard/credentials/apps',
         icon: 'key'
       },
       {
         title: 'Botões',
-        url: '/dashboard/app/buttons',
+        url: '/dashboard/credentials/buttons',
+        icon: 'mousePointer'
+      },
+      {
+        title: 'Credenciais Shopify',
+        url: '/dashboard/credentials/shopify-credentials',
+        icon: 'mousePointer'
+      },
+      {
+        title: 'Credenciais WooCommerce',
+        url: '/dashboard/credentials/buttons',
+        icon: 'mousePointer'
+      },
+      {
+        title: 'Credenciais Wix',
+        url: '/dashboard/credentials/buttons',
         icon: 'mousePointer'
       }
     ]

@@ -18,7 +18,10 @@ export type Product = {
   id: number;
   category: string;
   updated_at: string;
+  quantidade: number;         // Novo campo
+  payment_link: string;       // Novo campo
 };
+
 
 // Mock product data store
 export const fakeProducts = {
@@ -28,30 +31,35 @@ export const fakeProducts = {
   initialize() {
     const sampleProducts: Product[] = [];
     function generateRandomProductData(id: number): Product {
-      const categories = [
-        'Electronics',
-        'Furniture',
-        'Clothing',
-        'Toys',
-        'Groceries',
-        'Books',
-        'Jewelry',
-        'Beauty Products'
-      ];
+  const categories = [
+    'Electronics',
+    'Furniture',
+    'Clothing',
+    'Toys',
+    'Groceries',
+    'Books',
+    'Jewelry',
+    'Beauty Products'
+  ];
 
-      return {
-        id,
-        name: faker.commerce.productName(),
-        description: faker.commerce.productDescription(),
-        created_at: faker.date
-          .between({ from: '2022-01-01', to: '2023-12-31' })
-          .toISOString(),
-        price: parseFloat(faker.commerce.price({ min: 5, max: 500, dec: 2 })),
-        photo_url: `https://api.slingacademy.com/public/sample-products/${id}.png`,
-        category: faker.helpers.arrayElement(categories),
-        updated_at: faker.date.recent().toISOString()
-      };
-    }
+  const name = faker.commerce.productName();
+
+  return {
+    id,
+    name,
+    description: faker.commerce.productDescription(),
+    created_at: faker.date
+      .between({ from: '2022-01-01', to: '2023-12-31' })
+      .toISOString(),
+    price: parseFloat(faker.commerce.price({ min: 5, max: 500, dec: 2 })),
+    photo_url: `https://api.slingacademy.com/public/sample-products/${id}.png`,
+    category: faker.helpers.arrayElement(categories),
+    updated_at: faker.date.recent().toISOString(),
+    quantidade: faker.number.int({ min: 1, max: 100 }), // Valor entre 1 e 100
+    payment_link: `https://pay.voidpay.com/checkout/${id}-${name.replace(/\s+/g, '-').toLowerCase()}`
+  };
+}
+
 
     // Generate remaining records
     for (let i = 1; i <= 20; i++) {
