@@ -51,13 +51,40 @@ export const navItems: NavItem[] = [
     isActive: false,
     shortcut: ['i', 'i'],
     items: []
-  }, {
-    title: 'Links de Pagamento',
-    url: '/dashboard/payment-links',
+  },
+  {
+    title: 'Transações',
+    url: '/dashboard/transactions',
     icon: 'plug',
     isActive: false,
     shortcut: ['i', 'i'],
-    items: []
+    items: [
+      {
+        title: 'Geral',
+        url: '/dashboard/transactions/overview',
+        icon: 'sliders'
+      },
+      {
+        title: 'Faturas',
+        url: '/dashboard/transactions/invoices',
+        icon: 'settings'
+      },
+      {
+        title: 'Links de Pagamentos',
+        url: '/dashboard/transactions/payment-links',
+        icon: 'settings'
+      },
+      {
+        title: 'Assinaturas',
+        url: '/dashboard/transactions/subscriptions',
+        icon: 'settings'
+      },
+      {
+        title: 'Pagamento Manual',
+        url: '/dashboard/transactions/payments',
+        icon: 'settings'
+      }
+    ]
   },
   {
     title: 'Checkout',
