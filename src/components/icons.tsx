@@ -45,7 +45,8 @@ import {
   IconSpeakerphone,
   IconShield,
   IconLogout,
-  IconAdjustments // Para "Personalizar"
+  IconAdjustments,
+  IconPaperclip // Para "Personalizar"
 } from '@tabler/icons-react';
 
 export type Icon = React.ComponentType<IconProps>;
@@ -65,6 +66,7 @@ export const Icons = {
   post: IconFileText,
   page: IconFile,
   userPen: IconUserEdit,
+  paper: IconPaperclip,
   user2: IconUserCircle,
   media: IconPhoto,
   settings: IconSettings,

@@ -55,7 +55,7 @@ export const navItems: NavItem[] = [
   {
     title: 'Transações',
     url: '/dashboard/transactions',
-    icon: 'plug',
+    icon: 'post',
     isActive: false,
     shortcut: ['i', 'i'],
     items: [
