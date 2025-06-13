@@ -29,6 +29,14 @@ export interface App {
 //Info: The following data is used for the sidebar navigation and Cmd K bar.
 export const navItems: NavItem[] = [
   {
+    title: 'Começar',
+    url: '/dashboard/get-started',
+    icon: 'rocket',
+    isActive: false,
+    shortcut: ['c', 'c'],
+    items: []
+  },
+  {
     title: 'Dashboard',
     url: '/dashboard/overview',
     icon: 'dashboard',
@@ -36,12 +44,12 @@ export const navItems: NavItem[] = [
     shortcut: ['d', 'd'],
     items: []
   },
-  {
-    title: 'Começar',
-    url: '/dashboard/get-started',
-    icon: 'rocket',
+    {
+    title: 'Saldos',
+    url: '/dashboard/balance/overview',
+    icon: 'dollarSign',
     isActive: false,
-    shortcut: ['c', 'c'],
+    shortcut: ['d', 'd'],
     items: []
   },
   {
