@@ -8,149 +8,140 @@ import {
   CardTitle
 } from '@/components/ui/card';
 import { Heading } from '@/components/ui/heading';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-
 import { Separator } from '@/components/ui/separator';
-import { DataTableSkeleton } from '@/components/ui/table/data-table-skeleton';
-import AppCredentialsModal from '@/features/apps/components/app-credentials-modal';
-import AppsListingPage from '@/features/apps/components/app-listing';
-
-import { searchParamsCache, serialize } from '@/lib/searchparams';
-import { cn } from '@/lib/utils';
-import {
-  IconKey,
-  IconPlus,
-  IconShieldLock,
-  IconWebhook
-} from '@tabler/icons-react';
 import Link from 'next/link';
-import { SearchParams } from 'nuqs/server';
-import { Suspense } from 'react';
+import { cn } from '@/lib/utils';
+import { IconPlus, IconFileInvoice } from '@tabler/icons-react';
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem
+} from '@/components/ui/dropdown-menu';
+import { CalendarCheck, CreditCard, LinkIcon } from 'lucide-react';
 
 export const metadata = {
-  title: 'Dashboard: Links de Pagamento',
-  description: 'Gerencie seus links de pagamento '
+  title: 'Dashboard: Transações',
+  description: 'Escolha como começar a receber pagamentos.'
 };
 
-type pageProps = {
-  searchParams: Promise<SearchParams>;
-};
-
-export default async function Page(props: pageProps) {
-  const searchParams = await props.searchParams;
-  searchParamsCache.parse(searchParams);
-
+export default function Page() {
   return (
-    <PageContainer scrollable={false}>
-      <div className='flex flex-1 flex-col space-y-4'>
-        <div className='flex items-start justify-between'>
-          <div>
-            <Heading
-              title='Transações'
-              description='Gerencie seus links de pagamento e produtos'
-            />
-            <div className='mt-2 flex gap-2'>
-              <span className='text-muted-foreground inline-flex items-center gap-1 text-xs'>
-                <IconShieldLock className='h-3 w-3' /> Conexão segura
-              </span>
-              <span className='text-muted-foreground inline-flex items-center gap-1 text-xs'>
-                <IconWebhook className='h-3 w-3' /> Webhook configurado
-              </span>
-            </div>
-          </div>
-          <div className='flex gap-2'>
-            <AppCredentialsModal>
-              <button
-                className={cn(
-                  buttonVariants({ variant: 'outline' }),
-                  'text-xs md:text-sm'
-                )}
-              >
-                <IconKey className='mr-2 h-4 w-4' /> Documentação da API
-              </button>
-            </AppCredentialsModal>
-            <Link
-              href='/dashboard/payments/new'
-              className={cn(buttonVariants(), 'text-xs md:text-sm')}
-            >
-              <IconPlus className='mr-2 h-4 w-4' /> Criar Pagamento
-            </Link>
-          </div>
-        </div>
+    <PageContainer>
+      <div className='flex flex-col space-y-8'>
+        <div className='flex items-center justify-between'>
+  <Heading title='Transações' description='Escolha como começar a receber pagamentos.' />
+  <DropdownMenu>
+    <DropdownMenuTrigger asChild>
+      <Button className={cn(buttonVariants(), 'text-xs md:text-sm')}>
+        <IconPlus className='mr-2 h-4 w-4' /> Criar Pagamento
+      </Button>
+    </DropdownMenuTrigger>
+    <DropdownMenuContent className="w-56" align="end">
+      <DropdownMenuItem className="cursor-pointer">
+        <Link href="/dashboard/transactions/invoices/new" className="flex items-center w-full">
+          <IconFileInvoice className="mr-2 h-4 w-4" />
+          <span>Fatura</span>
+          <span className="ml-auto text-xs text-muted-foreground">Cliente específico</span>
+        </Link>
+      </DropdownMenuItem>
+      
+      <DropdownMenuItem className="cursor-pointer">
+        <Link href="/dashboard/transactions/payments-links/new" className="flex items-center w-full">
+          <LinkIcon className="mr-2 h-4 w-4" />
+          <span>Link de pagamento</span>
+          <span className="ml-auto text-xs text-muted-foreground">Qualquer pessoa</span>
+        </Link>
+      </DropdownMenuItem>
+      
+      <DropdownMenuItem className="cursor-pointer">
+        <Link href="/dashboard/transactions/subscriptions/new" className="flex items-center w-full">
+          <CalendarCheck className="mr-2 h-4 w-4" />
+          <span>Assinatura</span>
+          <span className="ml-auto text-xs text-muted-foreground">Cliente específico</span>
+        </Link>
+      </DropdownMenuItem>
+      
+      <DropdownMenuItem className="cursor-pointer">
+        <Link href="/dashboard/transactions/payments/new" className="flex items-center w-full">
+          <CreditCard className="mr-2 h-4 w-4" />
+          <span>Pagamento manual</span>
+          <span className="ml-auto text-xs text-muted-foreground">Dados do cartão</span>
+        </Link>
+      </DropdownMenuItem>
+    </DropdownMenuContent>
+  </DropdownMenu>
+</div>
+
         <Separator />
 
-        {/* Linha de Cartões de Estatísticas */}
-        <div className='grid grid-cols-1 gap-4 md:grid-cols-3'>
-          <div className='rounded-lg border p-4'>
-            <h3 className='text-sm font-medium'>Produtos Ativos</h3>
-            <p className='text-2xl font-bold'>12</p>
-            <p className='text-muted-foreground text-xs'>+2 este mês</p>
-          </div>
-          <div className='rounded-lg border p-4'>
-            <h3 className='text-sm font-medium'>Requisições de API</h3>
-            <p className='text-2xl font-bold'>1.2M</p>
-            <p className='text-muted-foreground text-xs'>
-              98% de taxa de sucesso
-            </p>
-          </div>
-          <div className='rounded-lg border p-4'>
-            <h3 className='text-sm font-medium'>Credenciais Expirando</h3>
-            <p className='text-2xl font-bold'>3</p>
-            <p className='text-muted-foreground text-xs'>
-              nos próximos 30 dias
-            </p>
-          </div>
+        <div className='flex flex-col items-center text-center space-y-2'>
+          <h2 className='text-xl font-bold'>Escolha como começar a receber pagamentos</h2>
+          <p className='text-muted-foreground max-w-2xl'>
+            Comece já com uma opção no-code ou explore as IUs personalizáveis que integram as nossas APIs.
+          </p>
         </div>
 
-        {/* <Card className='border-muted bg-background text-foreground mx-auto w-full max-w-sm border'>
-          <CardHeader>
-            <CardTitle>Adicionar Produto</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form className='flex flex-col gap-4'>
-              <div className='grid gap-1'>
-                <Label htmlFor='productName'>Nome do Produto</Label>
-                <Input id='productName' placeholder='Nome do produto' />
-              </div>
-              <div className='grid gap-1'>
-                <Label htmlFor='quantity'>Quantidade</Label>
-                <Input id='quantity' type='number' placeholder='0' />
-              </div>
-              <div className='grid gap-1'>
-                <Label htmlFor='price'>Preço</Label>
-                <Input
-                  id='price'
-                  type='number'
-                  step='0.01'
-                  placeholder='0.00'
-                />
-              </div>
-              <div className='grid gap-1'>
-                <Label htmlFor='file'>Imagem do Produto</Label>
-                <Input id='file' type='file' />
-              </div>
-            </form>
-          </CardContent>
-          <CardFooter>
-            <Button type='submit' className='w-full'>
-              Gerar
-            </Button>
-          </CardFooter>
-        </Card> */}
-
-        <Suspense
-          fallback={
-            <DataTableSkeleton
-              columnCount={6}
-              rowCount={8}
-              filterCount={3}
-              //   filterPlaceholders={['Pesquisar aplicativos...', 'Status', 'Ambiente']}
-            />
-          }
-        >
-          <AppsListingPage />
-        </Suspense>
+        <div className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3'>
+          {[
+            {
+              title: 'Enviar uma fatura ao cliente',
+              description: 'Receba pagamentos pontuais ou recorrentes de clientes específicos com conciliação automatizada.',
+              details: ['Configure em 1 minuto', 'Não é preciso programar'],
+              button: 'Criar fatura'
+            },
+            {
+              title: 'Compartilhe um link para uma página de checkout',
+              description: 'Venda um produto ou assinatura ou aceite uma doação compartilhando um link para uma página de pagamento.',
+              details: ['Configure em 1 minuto', 'Não é preciso programar'],
+              button: 'Criar um link de pagamento'
+            },
+            {
+              title: 'Criar uma IU de pagamentos personalizada',
+              description: 'Aceite pagamentos no seu site e aplicativo móvel ao integrar nossos componentes de IU modulares com estilização em nível de CSS.',
+              details: ['O código é obrigatório'],
+              button: 'Saiba mais sobre o Elements'
+            },
+            {
+              title: 'Use um formulário de pagamento pré-configurado',
+              description: 'Integre um formulário de checkout otimizado para conversão diretamente no seu site ou redirecione para uma página hospedada pela Stripe.',
+              details: ['Low-code'],
+              button: 'Saiba mais sobre o Checkout'
+            },
+            {
+              title: 'Cobre os clientes pessoalmente',
+              description: 'Integre as nossas máquinas de cartão para aceitar pagamentos presenciais e levar a Stripe para o seu ponto de venda.',
+              details: ['O código é obrigatório'],
+              button: 'Saiba mais sobre o Terminal'
+            },
+            {
+              title: 'Cobre um cliente de forma manual',
+              description: 'Crie um pagamento no Dashboard inserindo manualmente os dados do cartão do cliente.',
+              details: ['Configure em 1 minuto', 'Não é preciso programar'],
+              button: 'Criar pagamento'
+            }
+          ].map((item, index) => (
+            <Card key={index} className='shadow-md flex flex-col'>
+              <CardHeader className='text-center'>
+                <CardTitle>{item.title}</CardTitle>
+              </CardHeader>
+              <CardContent className='flex-1 flex flex-col items-center text-center'>
+                <div className='bg-gray-100 w-full h-64 rounded-md mb-4 flex items-center justify-center text-gray-400'>
+                  Pré-visualização
+                </div>
+                <p className='text-sm text-muted-foreground mb-2'>{item.description}</p>
+                <div className='mt-auto'>
+                  {item.details.map((detail, i) => (
+                    <p key={i} className='text-sm text-muted-foreground'>{detail}</p>
+                  ))}
+                </div>
+              </CardContent>
+              <CardFooter className='flex justify-center'>
+                <Button className='w-full max-w-xs'>{item.button}</Button>
+              </CardFooter>
+            </Card>
+          ))}
+        </div>
       </div>
     </PageContainer>
   );

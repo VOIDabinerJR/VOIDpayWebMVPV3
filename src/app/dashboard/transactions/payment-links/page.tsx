@@ -42,22 +42,15 @@ export default async function Page(props: pageProps) {
   searchParamsCache.parse(searchParams);
 
   return (
-    <PageContainer scrollable={false}>
+    <PageContainer  >
       <div className='flex flex-1 flex-col space-y-4'>
         <div className='flex items-start justify-between'>
           <div>
             <Heading
-              title='Transações'
+              title='Links de pagamento'
               description='Gerencie seus links de pagamento e produtos'
             />
-            <div className='mt-2 flex gap-2'>
-              <span className='text-muted-foreground inline-flex items-center gap-1 text-xs'>
-                <IconShieldLock className='h-3 w-3' /> Conexão segura
-              </span>
-              <span className='text-muted-foreground inline-flex items-center gap-1 text-xs'>
-                <IconWebhook className='h-3 w-3' /> Webhook configurado
-              </span>
-            </div>
+            
           </div>
           <div className='flex gap-2'>
             <AppCredentialsModal>
@@ -71,7 +64,7 @@ export default async function Page(props: pageProps) {
               </button>
             </AppCredentialsModal>
             <Link
-              href='/dashboard/payments/new'
+              href='/dashboard/transactions/payments-links/new'
               className={cn(buttonVariants(), 'text-xs md:text-sm')}
             >
               <IconPlus className='mr-2 h-4 w-4' /> Criar Pagamento
@@ -83,24 +76,11 @@ export default async function Page(props: pageProps) {
         {/* Linha de Cartões de Estatísticas */}
         <div className='grid grid-cols-1 gap-4 md:grid-cols-3'>
           <div className='rounded-lg border p-4'>
-            <h3 className='text-sm font-medium'>Produtos Ativos</h3>
+            <h3 className='text-sm font-medium'>Links Ativos</h3>
             <p className='text-2xl font-bold'>12</p>
             <p className='text-muted-foreground text-xs'>+2 este mês</p>
           </div>
-          <div className='rounded-lg border p-4'>
-            <h3 className='text-sm font-medium'>Requisições de API</h3>
-            <p className='text-2xl font-bold'>1.2M</p>
-            <p className='text-muted-foreground text-xs'>
-              98% de taxa de sucesso
-            </p>
-          </div>
-          <div className='rounded-lg border p-4'>
-            <h3 className='text-sm font-medium'>Credenciais Expirando</h3>
-            <p className='text-2xl font-bold'>3</p>
-            <p className='text-muted-foreground text-xs'>
-              nos próximos 30 dias
-            </p>
-          </div>
+      
         </div>
 
         {/* <Card className='border-muted bg-background text-foreground mx-auto w-full max-w-sm border'>

@@ -6,7 +6,7 @@ import { SeasonalPromotionsSection } from './promotions';
 import { UpsellCrossSellSection } from './upsell';
 import { GiftsBonusSection } from './gifts';
 
-export function MarketingTabs() {
+export default function MarketingTabs() {
   return (
     <Tabs defaultValue="discounts" className="w-full">
       <TabsList className="grid w-full grid-cols-5 h-auto p-1 bg-muted/50">

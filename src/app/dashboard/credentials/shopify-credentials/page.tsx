@@ -16,7 +16,7 @@ export const metadata = {
 
 export default function Page() {
   return (
-    <PageContainer scrollable={false}>
+    <PageContainer  >
       <div className='flex flex-1 flex-col space-y-6'>
         <div className='flex items-start justify-between'>
           <div>
