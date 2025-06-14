@@ -20,19 +20,7 @@ interface Tenant {
   name: string;
 }
 
-export function OrgSwitcher({
-  tenants,
-  defaultTenant,
-  onTenantSwitch
-}: {
-  tenants: Tenant[];
-  defaultTenant: Tenant;
-  onTenantSwitch?: (tenantId: string) => void;
-}) {
-
-
-
-
+export function OrgSwitcher() {
   return (
     <SidebarMenu>
       <SidebarMenuItem>

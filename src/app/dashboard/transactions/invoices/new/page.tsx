@@ -412,18 +412,18 @@ export default function CreateInvoicePage() {
         <div className='bg-background/50 w-1/2 overflow-y-auto border-l p-6'>
           <div className='mt-4'>
             <ProfessionalInvoicePreview
-              mode={previewMode}
-              invoiceData={{
-                client,
-                currency,
-                items,
-                total: calculateTotal(),
-                paymentMethod,
-                notes,
-                footer,
-                customFields,
-                taxId
-              }}
+            //   mode={previewMode}
+            //   invoiceData={{
+            //     client,
+            //     currency,
+            //     items,
+            //     total: calculateTotal(),
+            //     paymentMethod,
+            //     notes,
+            //     footer,
+            //     customFields,
+            //     taxId
+            //   }}
             />
           </div>
         </div>
