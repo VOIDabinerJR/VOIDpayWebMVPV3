@@ -42,7 +42,7 @@ export default async function Page(props: pageProps) {
   searchParamsCache.parse(searchParams);
 
   return (
-    <PageContainer  >
+    <PageContainer>
       <div className='flex flex-1 flex-col space-y-4'>
         <div className='flex items-start justify-between'>
           <div>
@@ -50,7 +50,6 @@ export default async function Page(props: pageProps) {
               title='Links de pagamento'
               description='Gerencie seus links de pagamento e produtos'
             />
-            
           </div>
           <div className='flex gap-2'>
             <AppCredentialsModal>
@@ -64,7 +63,7 @@ export default async function Page(props: pageProps) {
               </button>
             </AppCredentialsModal>
             <Link
-              href='/dashboard/transactions/payments-links/new'
+              href='/dashboard/transactions/payment-links/new'
               className={cn(buttonVariants(), 'text-xs md:text-sm')}
             >
               <IconPlus className='mr-2 h-4 w-4' /> Criar Link
@@ -80,7 +79,6 @@ export default async function Page(props: pageProps) {
             <p className='text-2xl font-bold'>12</p>
             <p className='text-muted-foreground text-xs'>+2 este mês</p>
           </div>
-      
         </div>
 
         {/* <Card className='border-muted bg-background text-foreground mx-auto w-full max-w-sm border'>
