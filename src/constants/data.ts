@@ -26,6 +26,124 @@ export interface App {
   ip_restrictions?: string[];
   permissions: string[];
 }
+
+export interface Refund {
+  id: string;
+  transaction_id: string;
+  amount: number;
+  currency: string;
+  type: 'full' | 'partial';
+  status:
+    | 'pending_approval'
+    | 'processing'
+    | 'completed'
+    | 'failed'
+    | 'cancelled';
+  payment_method:
+    | 'credit_card'
+    | 'debit_card'
+    | 'pix'
+    | 'bank_transfer'
+    | 'wallet';
+  reason?: string;
+  created_at: string;
+  processed_at?: string;
+  approved_by?: string;
+  approved_at?: string;
+  customer: {
+    id: string;
+    name: string;
+    email: string;
+  };
+  original_transaction: {
+    id: string;
+    amount: number;
+    reference: string;
+    date: string;
+  };
+  metadata?: {
+    admin_notes?: string;
+    customer_notes?: string;
+    attachments?: string[];
+  };
+}
+
+// Tipo para a resposta da API de listagem de reembolsos
+export interface RefundsResponse {
+  total_refunds: number;
+  total_amount: number;
+  refunds: Refund[];
+  page: number;
+  limit: number;
+}
+
+export interface Withdrawal {
+  id: string;
+  amount: number;
+  method: 'mpesa' | 'bank' | 'pix' | 'emola' | string;
+  destination: string;
+  destination_name?: string;
+  status: 'pending' | 'processing' | 'completed' | 'failed' | 'reversed';
+  created_at: string | Date;
+  reference?: string;
+  fee?: number;
+  net_amount?: number;
+  user_id?: string;
+  account_id?: string;
+  processed_at?: string | Date;
+  receipt_url?: string;
+}
+
+export interface WithdrawalAccount {
+  id: string;
+  name: string;
+  type: 'mpesa' | 'bank' | 'pix' | 'emola';
+  details: {
+    phone?: string;
+    bank_name?: string;
+    branch?: string;
+    account_number?: string;
+    pix_key?: string;
+    pix_type?: 'cpf' | 'cnpj' | 'email' | 'phone' | 'random';
+  };
+  is_default?: boolean;
+  created_at: string | Date;
+}
+
+// Tipos auxiliares
+export type WithdrawalStatus = Withdrawal['status'];
+export type WithdrawalMethod = Withdrawal['method'];
+
+// Response da API
+export interface WithdrawalsResponse {
+  data: Withdrawal[];
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    total_pages: number;
+  };
+}
+
+// Parâmetros para filtro
+export interface WithdrawalFilters {
+  status?: WithdrawalStatus;
+  method?: WithdrawalMethod;
+  min_amount?: number;
+  max_amount?: number;
+  start_date?: string;
+  end_date?: string;
+  search?: string;
+}
+
+// Payload para criação de saque
+export interface CreateWithdrawalPayload {
+  amount: number;
+  method: WithdrawalMethod;
+  account_id: string;
+  reference?: string;
+}
+
 //Info: The following data is used for the sidebar navigation and Cmd K bar.
 export const navItems: NavItem[] = [
   {
@@ -44,14 +162,7 @@ export const navItems: NavItem[] = [
     shortcut: ['d', 'd'],
     items: []
   },
-    {
-    title: 'Saldos',
-    url: '/dashboard/balance/overview',
-    icon: 'dollarSign',
-    isActive: false,
-    shortcut: ['d', 'd'],
-    items: []
-  },
+
   {
     title: 'Integração',
     url: '/dashboard/integration',
@@ -91,6 +202,32 @@ export const navItems: NavItem[] = [
         title: 'Pagamento Manual',
         url: '/dashboard/transactions/payments',
         icon: 'settings'
+      }
+    ]
+  },
+  {
+    title: 'Financeiro',
+    url: '#',
+    icon: 'dollarSign',
+    isActive: false,
+    items: [
+      {
+        title: 'Geral',
+        url: '/dashboard/finance/overview',
+        icon: 'dollarSign',
+        isActive: false,
+        shortcut: ['d', 'd'],
+        items: []
+      },
+      {
+        title: 'Saldo & Saques',
+        url: '/dashboard/finance/wallet',
+        icon: 'wallet'
+      },
+      {
+        title: 'Reembolsos',
+        url: '/dashboard/finance/refunds',
+        icon: 'refreshCw'
       }
     ]
   },
@@ -145,24 +282,7 @@ export const navItems: NavItem[] = [
       }
     ]
   },
-  {
-    title: 'Financeiro',
-    url: '#',
-    icon: 'dollarSign',
-    isActive: false,
-    items: [
-      {
-        title: 'Carteira - Saques',
-        url: '/dashboard/finance/wallet',
-        icon: 'wallet'
-      },
-      {
-        title: 'Reembolsos',
-        url: '/dashboard/finance/refunds',
-        icon: 'refreshCw'
-      }
-    ]
-  },
+
   {
     title: 'Análises',
     url: '/dashboard/analytics',

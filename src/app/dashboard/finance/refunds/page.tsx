@@ -1,357 +1,174 @@
-'use client';
-import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import PageContainer from '@/components/layout/page-container';
+import { Button, buttonVariants } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card';
+import { Heading } from '@/components/ui/heading';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger
+} from '@/components/ui/dialog';
+
 import { Separator } from '@/components/ui/separator';
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from '@/components/ui/table';
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuTrigger 
-} from '@/components/ui/dropdown-menu';
-import { 
-  IconSearch, 
-  IconFilter, 
-  IconDownload, 
-  IconRefresh,
-  IconChevronDown,
-  IconCircleCheck,
-  IconCircleX,
-  IconClock
+import { DataTableSkeleton } from '@/components/ui/table/data-table-skeleton';
+import RefundModal from '@/features/finance/components/refund-modal';
+import RefundsListingPage from '@/features/finance/components/refunds-list';
+
+import { searchParamsCache, serialize } from '@/lib/searchparams';
+import { cn } from '@/lib/utils';
+import {
+  IconKey,
+  IconPlus,
+  IconShieldLock,
+  IconWebhook,
+  IconSettings,
+  IconRobot,
+  IconRefresh
 } from '@tabler/icons-react';
-import { Badge } from '@/components/ui/badge';
+import Link from 'next/link';
+import { SearchParams } from 'nuqs/server';
+import { Suspense } from 'react';
 
-export default function RefundManagement() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
+export const metadata = {
+  title: 'Dashboard: Reembolsos',
+  description: 'Gerencie seus reembolsos'
+};
 
-  // Dados de exemplo para reembolsos
-  const refunds = [
-    {
-      id: 'REF-2023-001',
-      transactionId: 'TXN-789456',
-      amount: 2880.00,
-      currency: 'MZN',
-      date: '2023-11-15',
-      customer: 'João Matavel',
-      reason: 'Produto não entregue',
-      status: 'completed',
-      method: 'Cartão de Crédito'
-    },
-    {
-      id: 'REF-2023-002',
-      transactionId: 'TXN-789457',
-      amount: 1500.00,
-      currency: 'MZN',
-      date: '2023-11-16',
-      customer: 'Maria Fernanda',
-      reason: 'Arrependimento de compra',
-      status: 'pending',
-      method: 'Paysal'
-    },
-    {
-      id: 'REF-2023-003',
-      transactionId: 'TXN-789458',
-      amount: 750.50,
-      currency: 'MZN',
-      date: '2023-11-17',
-      customer: 'Carlos Dias',
-      reason: 'Produto com defeito',
-      status: 'failed',
-      method: 'Transferência Bancária'
-    },
-    {
-      id: 'REF-2023-004',
-      transactionId: 'TXN-789459',
-      amount: 3200.00,
-      currency: 'MZN',
-      date: '2023-11-18',
-      customer: 'Ana Silva',
-      reason: 'Cancelamento de serviço',
-      status: 'completed',
-      method: 'Cartão de Débito'
-    },
-    {
-      id: 'REF-2023-005',
-      transactionId: 'TXN-789460',
-      amount: 1200.00,
-      currency: 'MZN',
-      date: '2023-11-19',
-      customer: 'Paulo Mutemba',
-      reason: 'Duplicidade de cobrança',
-      status: 'pending',
-      method: 'QR Code'
-    }
-  ];
+type pageProps = {
+  searchParams: Promise<SearchParams>;
+};
 
-  // Filtrar reembolsos com base na pesquisa e filtro
-  const filteredRefunds = refunds.filter(refund => {
-    const matchesSearch = 
-      refund.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      refund.transactionId.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      refund.customer.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    const matchesStatus = 
-      statusFilter === 'all' || refund.status === statusFilter;
-    
-    return matchesSearch && matchesStatus;
-  });
-
-  const handleProcessRefund = (refundId: string) => {
-    // Lógica para processar reembolso
-    console.log(`Processando reembolso: ${refundId}`);
-  };
-
-  const handleCancelRefund = (refundId: string) => {
-    // Lógica para cancelar reembolso
-    console.log(`Cancelando reembolso: ${refundId}`);
-  };
+export default async function Page(props: pageProps) {
+  const searchParams = await props.searchParams;
+  searchParamsCache.parse(searchParams);
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Gestão de Reembolsos</h1>
-          <p className="text-muted-foreground">
-            Visualize e gerencie todos os pedidos de reembolso
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline">
-            <IconDownload className="mr-2 h-4 w-4" />
-            Exportar
-          </Button>
-          <Button>
-            <IconRefresh className="mr-2 h-4 w-4" />
-            Atualizar
-          </Button>
-        </div>
-      </div>
-
-      <Separator />
-
-      {/* Filtros e Busca */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="search">Pesquisar</Label>
-              <div className="relative">
-                <IconSearch className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="search"
-                  placeholder="ID, Transação ou Cliente..."
-                  className="pl-9"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Status</Label>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="w-full justify-between">
-                    {statusFilter === 'all' ? 'Todos Status' : 
-                     statusFilter === 'completed' ? 'Completos' :
-                     statusFilter === 'pending' ? 'Pendentes' : 'Falhados'}
-                    <IconChevronDown className="ml-2 h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => setStatusFilter('all')}>
-                    Todos
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setStatusFilter('completed')}>
-                    Completos
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setStatusFilter('pending')}>
-                    Pendentes
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setStatusFilter('failed')}>
-                    Falhados
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Período</Label>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="w-full justify-between">
-                    Últimos 30 dias
-                    <IconChevronDown className="ml-2 h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem>Hoje</DropdownMenuItem>
-                  <DropdownMenuItem>Últimos 7 dias</DropdownMenuItem>
-                  <DropdownMenuItem>Últimos 30 dias</DropdownMenuItem>
-                  <DropdownMenuItem>Personalizado</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
+    <PageContainer scrollable={false}>
+      <div className='flex flex-1 flex-col space-y-4'>
+        <div className='flex items-start justify-between'>
+          <div>
+            <Heading
+              title='Reembolsos'
+              description='Gerencie solicitações de reembolso para seus clientes.'
+            />
           </div>
-        </CardContent>
-      </Card>
+          <div className='flex gap-2'>
+            <Dialog>
+              <DialogTrigger asChild>
+                <button
+                  className={cn(
+                    buttonVariants({ variant: 'outline' }),
+                    'text-xs md:text-sm'
+                  )}
+                >
+                  <IconSettings className='mr-2 h-4 w-4' /> Configurações
+                </button>
+              </DialogTrigger>
+              <DialogContent className='sm:max-w-[425px]'>
+                <DialogHeader>
+                  <DialogTitle className='flex items-center gap-2'>
+                    <IconShieldLock className='text-primary h-5 w-5' />
+                    Configurações de Reembolso
+                  </DialogTitle>
+                </DialogHeader>
+                <div className='grid gap-4 py-4'>
+                  <div className='flex items-center justify-between space-x-4'>
+                    <Label
+                      htmlFor='auto-refund'
+                      className='flex flex-col space-y-1'
+                    >
+                      <span>Reembolsos Automáticos</span>
+                      <span className='text-muted-foreground font-normal'>
+                        Ative para processar reembolsos automaticamente
+                      </span>
+                    </Label>
+                    <Switch id='auto-refund' />
+                  </div>
 
-      {/* Estatísticas Rápidas */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total Reembolsos
-            </CardTitle>
-            <span className="text-muted-foreground text-xs">30 dias</span>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">24</div>
-            <p className="text-muted-foreground text-xs">
-              +12% em relação ao mês anterior
-            </p>
-          </CardContent>
-        </Card>
+                  <div className='grid gap-2'>
+                    <Label htmlFor='max-days'>Prazo Máximo (dias)</Label>
+                    <Input id='max-days' type='number' placeholder='30' />
+                    <p className='text-muted-foreground text-xs'>
+                      Período máximo para solicitação de reembolso
+                    </p>
+                  </div>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Valor Total
-            </CardTitle>
-            <span className="text-muted-foreground text-xs">30 dias</span>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">MZN 42,560.00</div>
-            <p className="text-muted-foreground text-xs">
-              +8% em relação ao mês anterior
-            </p>
-          </CardContent>
-        </Card>
+                  <div className='grid gap-2'>
+                    <Label htmlFor='refund-percentage'>
+                      Porcentagem Máxima
+                    </Label>
+                    <Input
+                      id='refund-percentage'
+                      type='number'
+                      min='0'
+                      max='100'
+                      placeholder='100'
+                    />
+                    <p className='text-muted-foreground text-xs'>
+                      Porcentagem máxima do valor que pode ser reembolsada
+                    </p>
+                  </div>
+                </div>
+                <div className='flex justify-end gap-2'>
+                  <Button variant='outline'>Cancelar</Button>
+                  <Button>Salvar Configurações</Button>
+                </div>
+              </DialogContent>
+            </Dialog>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Pendentes
-            </CardTitle>
-            <span className="text-muted-foreground text-xs">Por resolver</span>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">5</div>
-            <p className="text-muted-foreground text-xs">
-              2 com mais de 7 dias
-            </p>
-          </CardContent>
-        </Card>
+            <RefundModal>
+              <button
+                className={cn(
+                  buttonVariants({ variant: 'outline' }),
+                  'text-xs md:text-sm'
+                )}
+              >
+                <IconPlus className='mr-2 h-4 w-4' /> Novo Reembolso
+              </button>
+            </RefundModal>
+          </div>
+        </div>
+        <Separator />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Taxa de Sucesso
-            </CardTitle>
-            <span className="text-muted-foreground text-xs">30 dias</span>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">92%</div>
-            <p className="text-muted-foreground text-xs">
-              3% melhor que o mês anterior
+        {/* Linha de Cartões de Estatísticas */}
+        <div className='grid grid-cols-1 gap-4 md:grid-cols-3'>
+          <div className='rounded-lg border p-4'>
+            <h3 className='text-sm font-medium'>Reembolsos Pendentes</h3>
+            <p className='text-2xl font-bold'>5</p>
+            <p className='text-muted-foreground text-xs'>
+              Solicitações para processar
             </p>
-          </CardContent>
-        </Card>
+          </div>
+          <div className='rounded-lg border p-4'>
+            <h3 className='text-sm font-medium'>Valor Total</h3>
+            <p className='text-2xl font-bold'>7.500 MTn</p>
+            <p className='text-muted-foreground text-xs'>Em reembolsos</p>
+          </div>
+          <div className='rounded-lg border p-4'>
+            <h3 className='text-sm font-medium'>Tempo Médio</h3>
+            <p className='text-2xl font-bold'>2 dias</p>
+            <p className='text-muted-foreground text-xs'>Para processamento</p>
+          </div>
+        </div>
+
+        <Suspense
+          fallback={
+            <DataTableSkeleton columnCount={6} rowCount={8} filterCount={3} />
+          }
+        >
+          <RefundsListingPage />
+        </Suspense>
       </div>
-
-      {/* Tabela de Reembolsos */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Histórico de Reembolsos</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>ID Reembolso</TableHead>
-                <TableHead>ID Transação</TableHead>
-                <TableHead>Cliente</TableHead>
-                <TableHead>Valor</TableHead>
-                <TableHead>Método</TableHead>
-                <TableHead>Data</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Ações</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredRefunds.map((refund) => (
-                <TableRow key={refund.id}>
-                  <TableCell className="font-medium">{refund.id}</TableCell>
-                  <TableCell>{refund.transactionId}</TableCell>
-                  <TableCell>{refund.customer}</TableCell>
-                  <TableCell>{refund.amount.toFixed(2)} {refund.currency}</TableCell>
-                  <TableCell>{refund.method}</TableCell>
-                  <TableCell>{refund.date}</TableCell>
-                  <TableCell>
-                    {refund.status === 'completed' && (
-                      <Badge variant="default">
-                        <IconCircleCheck className="h-3 w-3 mr-1" />
-                        Concluído
-                      </Badge>
-                    )}
-                    {refund.status === 'pending' && (
-                      <Badge variant="secondary">
-                        <IconClock className="h-3 w-3 mr-1" />
-                        Pendente
-                      </Badge>
-                    )}
-                    {refund.status === 'failed' && (
-                      <Badge variant="destructive">
-                        <IconCircleX className="h-3 w-3 mr-1" />
-                        Falhou
-                      </Badge>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex gap-2">
-                      {refund.status === 'pending' && (
-                        <>
-                          <Button 
-                            size="sm" 
-                            variant="outline"
-                            onClick={() => handleProcessRefund(refund.id)}
-                          >
-                            Processar
-                          </Button>
-                          <Button 
-                            size="sm" 
-                            variant="outline"
-                            onClick={() => handleCancelRefund(refund.id)}
-                          >
-                            Cancelar
-                          </Button>
-                        </>
-                      )}
-                      <Button size="sm" variant="ghost">
-                        Detalhes
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-
-      {/* Modal de Processamento de Reembolso (exemplo) */}
-      {/* Implementar um modal real para processamento detalhado */}
-    </div>
+    </PageContainer>
   );
 }
