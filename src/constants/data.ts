@@ -148,7 +148,7 @@ export interface CreateWithdrawalPayload {
 export const navItems: NavItem[] = [
   {
     title: 'Começar',
-    url: '/dashboard/get-started',
+    url: '/apps/123/dashboard/get-started',
     icon: 'rocket',
     isActive: false,
     shortcut: ['c', 'c'],
@@ -156,7 +156,7 @@ export const navItems: NavItem[] = [
   },
   {
     title: 'Dashboard',
-    url: '/dashboard/overview',
+    url: '/apps/123/dashboard/overview',
     icon: 'dashboard',
     isActive: false,
     shortcut: ['d', 'd'],
@@ -165,7 +165,7 @@ export const navItems: NavItem[] = [
 
   {
     title: 'Integração',
-    url: '/dashboard/integration',
+    url: '/apps/123/dashboard/integration',
     icon: 'plug',
     isActive: false,
     shortcut: ['i', 'i'],
@@ -173,34 +173,34 @@ export const navItems: NavItem[] = [
   },
   {
     title: 'Transações',
-    url: '/dashboard/transactions',
+    url: '/apps/123/dashboard/transactions',
     icon: 'post',
     isActive: false,
     shortcut: ['i', 'i'],
     items: [
       {
         title: 'Geral',
-        url: '/dashboard/transactions/overview',
+        url: '/apps/123/dashboard/transactions/overview',
         icon: 'sliders'
       },
       {
         title: 'Faturas',
-        url: '/dashboard/transactions/invoices',
+        url: '/apps/123/dashboard/transactions/invoices',
         icon: 'settings'
       },
       {
         title: 'Links de Pagamentos',
-        url: '/dashboard/transactions/payment-links',
+        url: '/apps/123/dashboard/transactions/payment-links',
         icon: 'settings'
       },
       {
         title: 'Assinaturas',
-        url: '/dashboard/transactions/subscriptions',
+        url: '/apps/123/dashboard/transactions/subscriptions',
         icon: 'settings'
       },
       {
         title: 'Pagamento Manual',
-        url: '/dashboard/transactions/payments',
+        url: '/apps/123/dashboard/transactions/payments',
         icon: 'settings'
       }
     ]
@@ -213,7 +213,7 @@ export const navItems: NavItem[] = [
     items: [
       {
         title: 'Geral',
-        url: '/dashboard/finance/overview',
+        url: '/apps/123/dashboard/finance/overview',
         icon: 'dollarSign',
         isActive: false,
         shortcut: ['d', 'd'],
@@ -221,12 +221,12 @@ export const navItems: NavItem[] = [
       },
       {
         title: 'Saldo & Saques',
-        url: '/dashboard/finance/wallet',
+        url: '/apps/123/dashboard/finance/wallet',
         icon: 'wallet'
       },
       {
         title: 'Reembolsos',
-        url: '/dashboard/finance/refunds',
+        url: '/apps/123/dashboard/finance/refunds',
         icon: 'refreshCw'
       }
     ]
@@ -239,12 +239,12 @@ export const navItems: NavItem[] = [
     items: [
       {
         title: 'Personalizar Checkout',
-        url: '/dashboard/checkout/customize',
+        url: '/apps/123/dashboard/checkout/customize',
         icon: 'sliders'
       },
       {
         title: 'Configurações',
-        url: '/dashboard/checkout/settings',
+        url: '/apps/123/dashboard/checkout/settings',
         icon: 'settings'
       }
     ]
@@ -257,27 +257,27 @@ export const navItems: NavItem[] = [
     items: [
       {
         title: 'Apps',
-        url: '/dashboard/credentials/apps',
+        url: '/apps/123/dashboard/credentials/apps',
         icon: 'key'
       },
       {
         title: 'Botões',
-        url: '/dashboard/credentials/buttons',
+        url: '/apps/123/dashboard/credentials/buttons',
         icon: 'mousePointer'
       },
       {
         title: 'Credenciais Shopify',
-        url: '/dashboard/credentials/shopify-credentials',
+        url: '/apps/123/dashboard/credentials/shopify-credentials',
         icon: 'mousePointer'
       },
       {
         title: 'Credenciais WooCommerce',
-        url: '/dashboard/credentials/buttons',
+        url: '/apps/123/dashboard/credentials/buttons',
         icon: 'mousePointer'
       },
       {
         title: 'Credenciais Wix',
-        url: '/dashboard/credentials/buttons',
+        url: '/apps/123/dashboard/credentials/buttons',
         icon: 'mousePointer'
       }
     ]
@@ -285,7 +285,7 @@ export const navItems: NavItem[] = [
 
   {
     title: 'Análises',
-    url: '/dashboard/analytics',
+    url: '/apps/123/dashboard/analytics',
     icon: 'barChart',
     isActive: false,
     shortcut: ['a', 'a'],
@@ -293,7 +293,7 @@ export const navItems: NavItem[] = [
   },
   {
     title: 'Marketing',
-    url: '/dashboard/marketing',
+    url: '/apps/123/dashboard/marketing',
     icon: 'megaphone',
     isActive: false,
     shortcut: ['m', 'm'],
@@ -307,17 +307,17 @@ export const navItems: NavItem[] = [
     items: [
       {
         title: 'Privacidade',
-        url: '/dashboard/settings/privacy',
+        url: '/apps/123/dashboard/settings/privacy',
         icon: 'shield'
       },
       {
         title: 'Termos e Condições',
-        url: '/dashboard/settings/terms',
+        url: '/apps/123/dashboard/settings/terms',
         icon: 'fileText'
       },
       {
         title: 'Configurações Gerais',
-        url: '/dashboard/settings/general',
+        url: '/apps/123/dashboard/settings/general',
         icon: 'settings'
       }
     ]
@@ -330,7 +330,7 @@ export const navItems: NavItem[] = [
     items: [
       {
         title: 'Perfil',
-        url: '/dashboard/account/profile',
+        url: '/apps/123/dashboard/account/profile',
         icon: 'userPen'
       },
       {
