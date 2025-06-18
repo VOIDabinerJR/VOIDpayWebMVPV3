@@ -1,5 +1,29 @@
 import { NavItem } from '@/types';
 
+
+
+
+
+
+// @/constants/data.ts
+export interface PaymentButton {
+  id: string;
+  name: string;
+  buttonToken: string;
+  destination: string | null;
+  appId: number;
+  createdAt: string;
+  status: 'active' | 'inactive' | 'pending';
+  needsActivation?: boolean;
+  webhookUrl?: string;
+  clientSecret?: string;
+  transactionsCount?: number;
+  lastUsedAt?: string | null;
+  reference?: string;
+  metadata?: Record<string, any>;
+}
+
+
 export type Product = {
   photo_url: string;
   name: string;
@@ -183,6 +207,11 @@ export const navItems: NavItem[] = [
         url: '/apps/123/dashboard/transactions/overview',
         icon: 'sliders'
       },
+   {
+        title: 'Botões',
+        url: '/apps/123/dashboard/transactions/buttons',
+        icon: 'mousePointer'
+      },
       {
         title: 'Faturas',
         url: '/apps/123/dashboard/transactions/invoices',
@@ -255,16 +284,8 @@ export const navItems: NavItem[] = [
     icon: 'smartphone',
     isActive: false,
     items: [
-      {
-        title: 'Apps',
-        url: '/apps/123/dashboard/credentials/apps',
-        icon: 'key'
-      },
-      {
-        title: 'Botões',
-        url: '/apps/123/dashboard/credentials/buttons',
-        icon: 'mousePointer'
-      },
+ 
+    
       {
         title: 'Credenciais Shopify',
         url: '/apps/123/dashboard/credentials/shopify-credentials',
@@ -299,6 +320,17 @@ export const navItems: NavItem[] = [
     shortcut: ['m', 'm'],
     items: []
   },
+    {
+    title: 'Aplicação',
+    url: '#',
+    icon: 'apps',
+    isActive: false,
+    items: [
+      {
+        title: 'Configurações',
+        url: '/apps/123',
+        icon: 'shield'
+      }]},
   {
     title: 'Configurações',
     url: '#',

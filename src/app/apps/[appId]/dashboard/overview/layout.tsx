@@ -50,14 +50,7 @@ export default function OverViewLayout({
             </p>
           </div>
 
-          <div className='relative'>
-            <button className='rounded-full p-2 hover:bg-gray-100 dark:hover:bg-gray-800'>
-              <IconBell className='size-5' />
-              <span className='absolute top-0 right-0 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white'>
-                {notifications.length}
-              </span>
-            </button>
-          </div>
+        
         </div>
 
         {/* Estatísticas principais */}

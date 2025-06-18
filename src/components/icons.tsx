@@ -31,6 +31,7 @@ import {
   IconX,
   IconLayoutKanban,
   IconBrandGithub,
+  IconApps,
   // Ícones verificados que existem no Tabler v2/v3:
   IconRocket,
   IconPlug,
@@ -75,6 +76,7 @@ export const Icons = {
   add: IconPlus,
   warning: IconAlertTriangle,
   user: IconUser,
+  apps: IconApps,
   arrowRight: IconArrowRight,
   help: IconHelpCircle,
   pizza: IconPizza,

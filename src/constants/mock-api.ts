@@ -5,9 +5,116 @@ import { Withdrawal } from './data';
 import { faker } from '@faker-js/faker';
 import { matchSorter } from 'match-sorter'; // For filtering
 import { App } from './data';
+import { PaymentButton } from './data';
 
 import { Refund, RefundsResponse } from './data';
 
+
+// @/constants/mock-api.ts
+export const mockPaymentButtons = {
+  getPaymentButtons: async (filters: {
+    page: number;
+    limit: number;
+    status?: string;
+    search?: string;
+  }) => {
+    // Full mock data array
+   const allButtons: PaymentButton[] = [
+      {
+        id: 'btn_001',
+        name: 'Premium Subscription',
+        buttonToken: 'VOID-b0eb1910-5de6-4b83-a5e3-311fc0884844',
+        destination: null,
+        appId: 13,
+        createdAt: '2025-06-06T18:52:12.000Z',
+        status: 'pending', // Changed to 'pending' to match needsActivation
+        needsActivation: true,
+        webhookUrl: 'https://api.example.com/webhooks/payments',
+        clientSecret: 'sk_test_xyz123',
+        transactionsCount: 0,
+        lastUsedAt: null
+      },
+      {
+        id: 'btn_002',
+        name: 'Donation Button',
+        buttonToken: 'VOID-c1fc2911-6ef7-5c94-b6f4-422fd1995955',
+        destination: 'charity@org.com',
+        appId: 13,
+        createdAt: '2025-06-10T09:15:33.000Z',
+        status: 'active',
+        transactionsCount: 42,
+        lastUsedAt: '2025-06-17T14:22:09.000Z'
+      },
+      {
+        id: 'btn_003',
+        name: 'E-commerce Checkout',
+        buttonToken: 'VOID-d2gd3022-7gh8-6d05-c7g5-533ge2107066',
+        destination: 'store@merchant.com',
+        appId: 14,
+        createdAt: '2025-06-15T11:08:57.000Z',
+        status: 'active',
+        transactionsCount: 128,
+        lastUsedAt: '2025-06-18T10:45:21.000Z'
+      },
+      {
+        id: 'btn_004',
+        name: 'Service Payment',
+        buttonToken: 'VOID-e3he4133-8hi9-7e16-d8h6-644hf3218177',
+        destination: 'services@company.com',
+        appId: 15,
+        createdAt: '2025-06-18T08:30:45.000Z',
+        status: 'active',
+        transactionsCount: 56,
+        lastUsedAt: '2025-06-18T12:15:30.000Z'
+      },
+      {
+        id: 'btn_005',
+        name: 'Event Ticket',
+        buttonToken: 'VOID-f4if5244-9ij0-8f27-e9i7-755ig4329288',
+        destination: 'events@org.com',
+        appId: 13,
+        createdAt: '2025-06-19T10:20:15.000Z',
+        status: 'pending', // Changed to 'pending' to match needsActivation
+        needsActivation: true,
+        transactionsCount: 0,
+        lastUsedAt: null
+      }
+    ];
+
+
+    // Apply filters
+    let filteredButtons = allButtons;
+    
+    if (filters.status) {
+      filteredButtons = filteredButtons.filter(
+        button => button.status === filters.status
+      );
+    }
+    
+    
+    if (filters.search) {
+      const searchTerm = filters.search.toLowerCase();
+      filteredButtons = filteredButtons.filter(
+        button => button.name.toLowerCase().includes(searchTerm) || 
+                button.buttonToken.toLowerCase().includes(searchTerm)
+      );
+    }
+
+    // Apply pagination
+    const startIndex = (filters.page - 1) * filters.limit;
+    const endIndex = startIndex + filters.limit;
+    const paginatedButtons = filteredButtons.slice(startIndex, endIndex);
+
+    // Simulate API response format
+    return {
+      total_buttons: filteredButtons.length,
+      buttons: paginatedButtons,
+      page: filters.page,
+      per_page: filters.limit,
+      total_pages: Math.ceil(filteredButtons.length / filters.limit)
+    };
+  }
+};
 // Dados mockados de reembolsos
 const refundsData: Refund[] = [
   {
