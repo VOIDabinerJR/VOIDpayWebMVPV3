@@ -54,7 +54,7 @@ export default async function Page(props: pageProps) {
   searchParamsCache.parse(searchParams);
 
   return (
-    <PageContainer scrollable={false}>
+    <PageContainer>
       <div className='flex flex-1 flex-col space-y-4'>
         <div className='flex items-start justify-between'>
           <div>
@@ -98,9 +98,9 @@ export default async function Page(props: pageProps) {
 
                   <div className='grid gap-2'>
                     <Label htmlFor='webhook'>URL de Webhook</Label>
-                    <Input 
-                      id='webhook' 
-                      placeholder='https://seusite.com/webhook' 
+                    <Input
+                      id='webhook'
+                      placeholder='https://seusite.com/webhook'
                     />
                     <p className='text-muted-foreground text-xs'>
                       Receba atualizações em tempo real sobre pagamentos
@@ -145,14 +145,14 @@ export default async function Page(props: pageProps) {
           <div className='rounded-lg border p-4'>
             <h3 className='text-sm font-medium'>Botões Ativos</h3>
             <p className='text-2xl font-bold'>24</p>
-            <p className='text-muted-foreground text-xs'>
-              Botões disponíveis
-            </p>
+            <p className='text-muted-foreground text-xs'>Botões disponíveis</p>
           </div>
           <div className='rounded-lg border p-4'>
             <h3 className='text-sm font-medium'>Pagamentos Hoje</h3>
             <p className='text-2xl font-bold'>18</p>
-            <p className='text-muted-foreground text-xs'>+2 em relação a ontem</p>
+            <p className='text-muted-foreground text-xs'>
+              +2 em relação a ontem
+            </p>
           </div>
           <div className='rounded-lg border p-4'>
             <h3 className='text-sm font-medium'>Taxa de Conversão</h3>
