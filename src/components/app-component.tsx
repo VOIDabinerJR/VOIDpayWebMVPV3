@@ -44,17 +44,13 @@ import Header from '@/components/layout/header';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import type { Metadata } from 'next';
 import { useState, useEffect } from 'react'; // Adicione useEffect
-type PageProps = {
-  params: {
-    appId: string;
-  };
-  searchParams?: {
-    [key: string]: string | string[] | undefined;
-  };
-};
 
-export function ClientPage({ params }: { params: { appId: string } }) {
-  const [state, setState] = useState();
+type PageProps = { params: Promise<{ appId: string }> };
+
+export function ClientPage({ params }: PageProps) {
+  const [resolvedParams, setResolvedParams] = useState<{
+    appId: string;
+  } | null>(null);
   const [appDetails, setAppDetails] = useState<{
     name: string;
     type: string;
@@ -62,57 +58,67 @@ export function ClientPage({ params }: { params: { appId: string } }) {
     secret: string;
     createdDate: string;
   } | null>(null);
-
-  const [showSecret, setShowSecret] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [showSecret, setShowSecret] = useState(false);
 
-  const defaultOpen = true;
+  // Resolve os params quando o componente monta
   useEffect(() => {
+    let isMounted = true;
+
+    params
+      .then((result) => {
+        if (isMounted) {
+          setResolvedParams(result);
+        }
+      })
+      .catch(() => {
+        if (isMounted) {
+          setResolvedParams(null);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [params]);
+
+  // Carrega os detalhes do app quando os params são resolvidos
+  useEffect(() => {
+    if (!resolvedParams?.appId) return;
+
     const fetchAppDetails = async () => {
       setLoading(true);
-      // Exemplo: substitua por sua lógica de API
-      const mockData = {
-        name: 'Minha Aplicação',
-        type: 'Integração',
-        clientId: 'client_123456789',
-        secret: 'sec_987654321',
-        createdDate: '2023-10-15'
-      };
-      setAppDetails(mockData);
-      setLoading(false);
+      try {
+        // Substitua por sua lógica real de API
+        const mockData = {
+          name: 'Minha Aplicação',
+          type: 'Integração',
+          clientId: 'client_123456789',
+          secret: 'sec_987654321',
+          createdDate: '2023-10-15'
+        };
+        setAppDetails(mockData);
+      } catch (error) {
+        console.error('Failed to fetch app details', error);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchAppDetails();
-  }, [params.appId]);
-  useEffect(() => {
-    const fetchAppDetails = async () => {
-      setLoading(true);
-      // Exemplo: substitua por sua lógica de API
-      const mockData = {
-        name: 'Minha Aplicação',
-        type: 'Integração',
-        clientId: 'client_123456789',
-        secret: 'sec_987654321',
-        createdDate: '2023-10-15'
-      };
-      setAppDetails(mockData);
-      setLoading(false);
-    };
+  }, [resolvedParams?.appId]);
 
-    fetchAppDetails();
-  }, [params.appId]);
-
-  if (loading) {
-    return <DataTableSkeleton columnCount={0} />; // Ou um loading state
+  if (loading || !resolvedParams) {
+    return <DataTableSkeleton columnCount={0} />;
   }
 
   if (!appDetails) {
     return <div>Erro ao carregar dados</div>;
   }
-  // Sua lógica de cliente aqui
+
   return (
     <KBar>
-      <SidebarProvider defaultOpen={defaultOpen}>
+      <SidebarProvider defaultOpen={true}>
         <AppSidebar />
         <SidebarInset>
           <Header />
@@ -122,7 +128,7 @@ export function ClientPage({ params }: { params: { appId: string } }) {
                 <div>
                   <Heading
                     title='Configurações da Aplicação'
-                    description={`Gerencie as credenciais e configurações da aplicação ${params.appId}`}
+                    description={`Gerencie as credenciais e configurações da aplicação ${resolvedParams.appId}`}
                   />
                 </div>
                 <div className='flex gap-2'>

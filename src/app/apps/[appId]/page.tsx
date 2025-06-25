@@ -1,5 +1,5 @@
 import { ClientPage } from '@/components/app-component';
-
-export default async function Page({ params }: { params: { appId: string } }) {
+type PageProps = { params: Promise<{ appId: string }> };
+export default async function Page({ params }: PageProps) {
   return <ClientPage params={params} />;
 }
