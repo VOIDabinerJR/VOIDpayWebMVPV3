@@ -37,13 +37,13 @@ import {
   IconTrash
 } from '@tabler/icons-react';
 import Link from 'next/link';
-import { useState } from 'react'; // Importe useState do react
 
 import KBar from '@/components/kbar';
 import AppSidebar from '@/components/layout/app-sidebar';
 import Header from '@/components/layout/header';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import type { Metadata } from 'next';
+import { useState, useEffect } from 'react'; // Adicione useEffect
 
 // export const metadata = {
 //   title: 'Dashboard: Configurações da Aplicação',
@@ -57,25 +57,53 @@ type PageProps = {
   searchParams: Record<string, string | string[] | undefined>;
 };
 
-export default async function Page({ params }: PageProps) {
-  // Dados mockados da aplicação - substituir por dados reais da API
-  const appDetails = {
-    name: 'Minha Aplicação',
-    type: 'Integração',
-    clientId: 'client_123456789',
-    secret: 'sec_987654321',
-    createdDate: '2023-10-15'
-  };
-  const defaultOpen = true;
-  const [showSecret, setShowSecret] = useState(false);
+export default function Page({ params }: PageProps) {
+  const [appDetails, setAppDetails] = useState<{
+    name: string;
+    type: string;
+    clientId: string;
+    secret: string;
+    createdDate: string;
+  } | null>(null);
 
+  const [showSecret, setShowSecret] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  const defaultOpen = true;
+
+  // Simula carregamento de dados (substitua por uma chamada real à API)
+  useEffect(() => {
+    const fetchAppDetails = async () => {
+      setLoading(true);
+      // Exemplo: substitua por sua lógica de API
+      const mockData = {
+        name: 'Minha Aplicação',
+        type: 'Integração',
+        clientId: 'client_123456789',
+        secret: 'sec_987654321',
+        createdDate: '2023-10-15'
+      };
+      setAppDetails(mockData);
+      setLoading(false);
+    };
+
+    fetchAppDetails();
+  }, [params.appId]);
+
+  if (loading) {
+    return <DataTableSkeleton columnCount={0} />; // Ou um loading state
+  }
+
+  if (!appDetails) {
+    return <div>Erro ao carregar dados</div>;
+  }
   return (
     <KBar>
       <SidebarProvider defaultOpen={defaultOpen}>
         <AppSidebar />
         <SidebarInset>
           <Header />
-          <PageContainer >
+          <PageContainer>
             <div className='flex flex-1 flex-col space-y-4'>
               <div className='flex items-start justify-between'>
                 <div>
