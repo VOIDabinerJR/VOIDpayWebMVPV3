@@ -49,8 +49,6 @@ export default function OverViewLayout({
               Aqui está o resumo do seu negócio
             </p>
           </div>
-
-        
         </div>
 
         {/* Estatísticas principais */}

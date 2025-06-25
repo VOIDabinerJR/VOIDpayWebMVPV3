@@ -1,10 +1,5 @@
 import { NavItem } from '@/types';
 
-
-
-
-
-
 // @/constants/data.ts
 export interface PaymentButton {
   id: string;
@@ -22,7 +17,6 @@ export interface PaymentButton {
   reference?: string;
   metadata?: Record<string, any>;
 }
-
 
 export type Product = {
   photo_url: string;
@@ -207,7 +201,7 @@ export const navItems: NavItem[] = [
         url: '/apps/123/dashboard/transactions/overview',
         icon: 'sliders'
       },
-   {
+      {
         title: 'Botões',
         url: '/apps/123/dashboard/transactions/buttons',
         icon: 'mousePointer'
@@ -284,8 +278,6 @@ export const navItems: NavItem[] = [
     icon: 'smartphone',
     isActive: false,
     items: [
- 
-    
       {
         title: 'Credenciais Shopify',
         url: '/apps/123/dashboard/credentials/shopify-credentials',
@@ -320,7 +312,7 @@ export const navItems: NavItem[] = [
     shortcut: ['m', 'm'],
     items: []
   },
-    {
+  {
     title: 'Aplicação',
     url: '#',
     icon: 'apps',
@@ -330,7 +322,9 @@ export const navItems: NavItem[] = [
         title: 'Configurações',
         url: '/apps/123',
         icon: 'shield'
-      }]},
+      }
+    ]
+  },
   {
     title: 'Configurações',
     url: '#',
@@ -362,7 +356,7 @@ export const navItems: NavItem[] = [
     items: [
       {
         title: 'Perfil',
-        url: '/apps/123/dashboard/account/profile',
+        url: '/apps/123/dashboard/profile',
         icon: 'userPen'
       },
       {
