@@ -54,7 +54,9 @@ type PageProps = {
   params: {
     appId: string;
   };
-  searchParams: Record<string, string | string[] | undefined>;
+  searchParams?: {
+    [key: string]: string | string[] | undefined;
+  };
 };
 
 export default function Page({ params }: PageProps) {
