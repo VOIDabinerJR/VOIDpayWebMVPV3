@@ -45,12 +45,9 @@ import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import type { Metadata } from 'next';
 import { useState, useEffect } from 'react'; // Adicione useEffect
 
-type PageProps = { params: Promise<{ appId: string }> };
+type PageProps = { params: { appId: string } };
 
 export function ClientPage({ params }: PageProps) {
-  const [resolvedParams, setResolvedParams] = useState<{
-    appId: string;
-  } | null>(null);
   const [appDetails, setAppDetails] = useState<{
     name: string;
     type: string;
@@ -61,30 +58,9 @@ export function ClientPage({ params }: PageProps) {
   const [loading, setLoading] = useState(true);
   const [showSecret, setShowSecret] = useState(false);
 
-  // Resolve os params quando o componente monta
+  // Carrega os detalhes do app quando o componente monta
   useEffect(() => {
-    let isMounted = true;
-
-    params
-      .then((result) => {
-        if (isMounted) {
-          setResolvedParams(result);
-        }
-      })
-      .catch(() => {
-        if (isMounted) {
-          setResolvedParams(null);
-        }
-      });
-
-    return () => {
-      isMounted = false;
-    };
-  }, [params]);
-
-  // Carrega os detalhes do app quando os params são resolvidos
-  useEffect(() => {
-    if (!resolvedParams?.appId) return;
+    if (!params.appId) return;
 
     const fetchAppDetails = async () => {
       setLoading(true);
@@ -106,9 +82,9 @@ export function ClientPage({ params }: PageProps) {
     };
 
     fetchAppDetails();
-  }, [resolvedParams?.appId]);
+  }, [params.appId]);
 
-  if (loading || !resolvedParams) {
+  if (loading) {
     return <DataTableSkeleton columnCount={0} />;
   }
 
@@ -128,7 +104,7 @@ export function ClientPage({ params }: PageProps) {
                 <div>
                   <Heading
                     title='Configurações da Aplicação'
-                    description={`Gerencie as credenciais e configurações da aplicação ${resolvedParams.appId}`}
+                    description={`Gerencie as credenciais e configurações da aplicação ${params.appId}`}
                   />
                 </div>
                 <div className='flex gap-2'>
