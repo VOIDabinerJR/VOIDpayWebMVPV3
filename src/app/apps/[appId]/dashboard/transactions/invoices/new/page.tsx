@@ -25,6 +25,7 @@ import {
 } from '@tabler/icons-react';
 import Link from 'next/link';
 import ProfessionalInvoicePreview from '@/components/invoice-preview-modal';
+import PageContainer from '@/components/layout/page-container';
 
 export default function CreateInvoicePage() {
   const router = useRouter();
@@ -107,6 +108,7 @@ export default function CreateInvoicePage() {
   }
 
   return (
+    <PageContainer>
     <div className='flex h-screen flex-col bg-gray-50'>
       {/* Header */}
       <div className='bg-background flex items-center justify-between border-b px-6 py-4'>
@@ -429,5 +431,6 @@ export default function CreateInvoicePage() {
         </div>
       </div>
     </div>
+     </PageContainer>
   );
 }

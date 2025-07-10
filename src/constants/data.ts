@@ -190,7 +190,7 @@ export const navItems: NavItem[] = [
     items: []
   },
   {
-    title: 'Transações',
+    title: 'Acção',
     url: '/apps/123/dashboard/transactions',
     icon: 'post',
     isActive: false,

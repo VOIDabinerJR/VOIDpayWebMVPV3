@@ -34,6 +34,7 @@ import {
   QrCode
 } from 'lucide-react';
 import Link from 'next/link';
+import PageContainer from '@/components/layout/page-container';
 
 export default function CreatePaymentLinkPage() {
   const router = useRouter();
@@ -106,7 +107,9 @@ export default function CreatePaymentLinkPage() {
   };
 
   return (
+      
     <div className='bg-muted/40 flex min-h-screen flex-col'>
+
       {/* Header */}
       <header className='bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-10 flex items-center justify-between border-b px-6 py-3 backdrop-blur'>
         <div className='flex items-center space-x-4'>
@@ -127,7 +130,7 @@ export default function CreatePaymentLinkPage() {
           <Button onClick={handleSubmit}>Gerar Link</Button>
         </div>
       </header>
-
+        <PageContainer>
       {/* Main Content */}
       <main className='flex flex-1 overflow-hidden'>
         {/* Form Section */}
@@ -399,7 +402,7 @@ export default function CreatePaymentLinkPage() {
         </section>
 
         {/* Preview Section */}
-        <section className='bg-muted/40 hidden w-1/3 overflow-y-auto border-l p-6 lg:block'>
+        <section className='bg-muted/40 hidden w-1/2 overflow-y-auto border-l p-6 lg:block'>
           <div className='sticky top-6 space-y-6'>
             <Card>
               <CardHeader>
@@ -486,6 +489,8 @@ export default function CreatePaymentLinkPage() {
           </div>
         </section>
       </main>
+          </PageContainer>
     </div>
+
   );
 }
