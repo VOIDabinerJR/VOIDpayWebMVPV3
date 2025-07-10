@@ -149,7 +149,7 @@ export function ProAccountProfile() {
                 </svg>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">R$ 9.999,99</div>
+                <div className="text-2xl font-bold">9.999,99 MTn</div>
                 <p className="text-xs text-muted-foreground">+12% em relação ao mês passado</p>
               </CardContent>
             </Card>
@@ -171,7 +171,7 @@ export function ProAccountProfile() {
                 </svg>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">R$ 24.560,00</div>
+                <div className="text-2xl font-bold">24.560,00 MTn</div>
                 <p className="text-xs text-muted-foreground">+20% em relação ao mês passado</p>
               </CardContent>
             </Card>
@@ -216,7 +216,7 @@ export function ProAccountProfile() {
                 </svg>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">R$ 1.234,56</div>
+                <div className="text-2xl font-bold">1.234,56 MTn</div>
                 <p className="text-xs text-muted-foreground">2.9% + R$ 0,30 por transação</p>
               </CardContent>
             </Card>
@@ -247,9 +247,9 @@ export function ProAccountProfile() {
                         {format(transaction.date, 'dd/MM/yyyy', { locale: ptBR })}
                       </TableCell>
                       <TableCell>
-                        {transaction.amount.toLocaleString('pt-BR', {
+                        {transaction.amount.toLocaleString('pt-MZ', {
                           style: 'currency',
-                          currency: 'BRL'
+                          currency: 'MZN'
                         })}
                       </TableCell>
                       <TableCell>
@@ -309,9 +309,9 @@ export function ProAccountProfile() {
                         {format(transaction.date, 'dd/MM/yyyy', { locale: ptBR })}
                       </TableCell>
                       <TableCell>
-                        {transaction.amount.toLocaleString('pt-BR', {
+                        {transaction.amount.toLocaleString('pt-MZ', {
                           style: 'currency',
-                          currency: 'BRL'
+                          currency: 'MZN'
                         })}
                       </TableCell>
                       <TableCell>
