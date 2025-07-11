@@ -326,7 +326,7 @@ export const navItems: NavItem[] = [
     ]
   },
   {
-    title: 'Configurações',
+    title: 'Legal',
     url: '#',
     icon: 'settings',
     isActive: false,
@@ -340,11 +340,6 @@ export const navItems: NavItem[] = [
         title: 'Termos e Condições',
         url: '/apps/123/dashboard/settings/terms',
         icon: 'fileText'
-      },
-      {
-        title: 'Configurações Gerais',
-        url: '/apps/123/dashboard/settings/general',
-        icon: 'settings'
       }
     ]
   },
