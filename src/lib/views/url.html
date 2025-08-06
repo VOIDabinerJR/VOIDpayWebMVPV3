@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VOIDpay|Test</title>
+
+</head>
+
+<body>
+
+    <div class="product-item">
+        <div>
+            <img class="image-item" style="width:45px;" src="data:image/jpeg;base64,..." alt="Imagem do Produto 1">
+        </div>
+        <div class="name-item">Produto 1</div>
+        <div class="quantity-item">1</div>
+        <div class="price-item">1200</div>
+        <div class="id-item">001</div>
+    </div>
+    <div class="product-item">
+        <div>
+            <img class="image-item" style="width:45px;" src="data:image/jpeg;base64,..." alt="Imagem do Produto 2">
+        </div>
+        <div class="name-item">Produto 2</div>
+        <div class="quantity-item">2</div>
+        <div class="price-item">1500</div>
+        <div class="id-item">002</div>
+    </div>
+    <div class="product-item">
+        <div>
+            <img class="image-item" style="width:45px;" src="data:image/jpeg;base64,..." alt="Imagem do Produto 3">
+        </div>
+        <div class="name-item">Produto 3</div>
+        <div class="quantity-item">1</div>
+        <div class="price-item">1800</div>
+        <div class="id-item">003</div>
+    </div>
+    <div class="product-item">
+        <div>
+            <img class="image-item" style="width:45px;" src="data:image/jpeg;base64,..." alt="Imagem do Produto 4">
+        </div>
+        <div class="name-item">Produto 4</div>
+        <div class="quantity-item">3</div>
+        <div class="price-item">2000</div>
+
+    </div>
+    <div class="product-item">
+        <div>
+            <img class="image-item" style="width:45px;" src="data:image/jpeg;base64,..." alt="Imagem do Produto 5">
+        </div>
+        <div class="name-item">Produto 5</div>
+        <div class="quantity-item">2</div>
+        <div class="price-item">2200</div>
+        <div class="id-item">005</div>
+    </div>
+    <div id="void-button-container" buttonToken="VOID-04fce89f-0952-4736-8c35-c93c0e503809"></div>
+
+
+    <div id="buttonid" name="VOID-04fce89f-0952-4736-8c35-c93c0e503809"></div>
+    <script src="http://localhost:3000/sdk/js?clientId=49db28ad-8ce0-4370-aefd-3f8636b6081b&acept=true"></script>
+
+
+    <div id="void-script-container"></div>
+
+
+
+</body>
+
+</html>
+<div>
+
+    <button buttonToken="VOID-04fce89f-0952-4736-8c35-c93c0e503809" id="void-pay-button" style="
+        display: flex;
+        background-color: #0a0a0a;
+        color: white;
+        font-size: 18px;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        text-align: center;
+        text-decoration: none;
+        transition: background-color 0.3s, box-shadow 0.3s, transform 0.1s;
+        position: relative;
+    ">
+        <img src="https://raw.githubusercontent.com/VOIDabinerJR/sdk/main/void.jpg" alt="Ícone do Void Pay"
+            style="height: 15px; margin-right: 5px;">
+        pay
+    </button>
+    <div id="error-message"></div>
+    <script>
+        var ridValue = __st.rid;
+        var ridArray = [];
+        ridArray.push(ridValue);
+
+        const button = document.getElementById('void-pay-button');
+        const buttonToken = button.getAttribute("buttonToken");
+        const errorMsg = document.getElementById('error-message');
+
+        button.addEventListener('click', async function (event) {
+            event.preventDefault();
+
+            const data = {
+                rid: ridArray,
+                buttonToken: buttonToken
+            };
+            try {
+                const response = await fetch('http://localhost:3000/order/createOrderSh', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                if (response.status) {
+                    const result = await response.json();
+                    window.location.href = `http://localhost:3000/pay/pay?orderid=${result.orderId}&buttontoken=${result.buttonToken}&channel=shopify`;
+                }
+                else if (!result.status) {
+                    const result = await response.json();
+                    if (result.error) {
+                        errorMsg.textContent = `Erro: ${result.error[0].message}`;
+                    }
+
+                }
+
+                
+            } catch (error) {
+                errorMsg.textContent = `Erro: ${error}`;
+                console.error('There was a problem with the fetch operation:', error);
+            }
+        });
+    </script>
+</div>
