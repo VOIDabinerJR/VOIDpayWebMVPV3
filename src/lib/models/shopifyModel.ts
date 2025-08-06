@@ -39,17 +39,17 @@ const Shopify = {
     }
   },
 
-  async findById(id: any) {
+  async findById(id: string) {
     const result = await db.query('SELECT * FROM shopify WHERE id = ?', [id]);
     return result;
   },
-  async findByUserId(id: any) {
+  async findByUserId(id: string) {
     const result = await db.query('SELECT * FROM shopify WHERE userid = ?', [
       id
     ]);
     return result;
   },
-  async findByClientId(id: any) {
+  async findByClientId(id: string) {
     const result = await db.query('SELECT * FROM shopify WHERE clientid = ?', [
       id
     ]);
@@ -60,7 +60,7 @@ const Shopify = {
     const result = await db.query('INSERT INTO shopify SET ?', app);
     return result;
   },
-  async update(app: any, id: any) {
+  async update(app: any, id: string) {
     const result = await db.query('UPDATE shopify SET ? WHERE id = ?', [
       app,
       id

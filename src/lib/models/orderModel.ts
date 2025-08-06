@@ -3,6 +3,7 @@ import db from '../config/db';
 
 interface Order {
   id?: number | string;
+  userId: string;
   contactName: string;
   email: string;
   phoneNumber: string;
