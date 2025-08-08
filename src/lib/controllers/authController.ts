@@ -1,17 +1,12 @@
-import { Request, Response } from 'express';
+// app/controllers/authController.ts
 import bcrypt from 'bcryptjs';
-import fs from 'fs';
 import User from '../models/userModel';
-import DynamicData from '../models/dynamicDataModell';
+import DynamicData from '../models/dynamicDataModel';
 import Wallet from '../models/walletModel';
 import Statistics from '../models/statisticsModel';
 import { createLoginToken, createToken, decodeToken } from '../utils/jwt';
-import {
-  sendEmail,
-  sendRecoverEmail,
-  sendPaymentConfirmationEmail
-} from '../utils/email';
-import { shortID } from '../utils/functions.js';
+import { sendRecoverEmail } from '../utils/email';
+import { shortID } from '../utils/functions';
 
 interface UserData {
   firstName: string;
@@ -19,160 +14,127 @@ interface UserData {
   username: string;
   email: string;
   password: string;
-  id?: number;
 }
 
-interface AuthController {
-  register(req: Request, res: Response): Promise<Response>;
-  login(req: Request, res: Response): Promise<Response>;
-  recoveraccount(req: Request, res: Response): Promise<Response>;
-  resetpassword(req: Request, res: Response): Promise<Response>;
-  loaddata(req: Request, res: Response): Promise<Response>;
-}
-
-const authController: AuthController = {
-  register: async (req: Request, res: Response): Promise<Response> => {
+export const authService = {
+  register: async (userData: {
+    firstName: string;
+    lastName: string;
+    username: string;
+    email: string;
+    password: string;
+    repeatPassword: string;
+  }) => {
     const { firstName, lastName, username, email, password, repeatPassword } =
-      req.body;
+      userData;
 
     if (password !== repeatPassword) {
-      return res.status(400).json({ error: 'Passwords do not match' });
+      throw new Error('Passwords do not match');
     }
 
-    try {
-      const [existingUser] = await User.findByEmail(email);
-      if (existingUser.length > 0) {
-        return res.status(400).json({ error: 'Email is already in use' });
-      }
-      const username1 = username.replace(/\s+/g, '') + shortID();
+    const existingUser = await User.findByEmail(email);
+    if (existingUser.length > 0) {
+      throw new Error('Email is already in use');
+    }
 
-      const hashedPassword = await bcrypt.hash(password, 8);
-      const user: UserData = {
-        firstName,
-        lastName,
-        username: username1,
-        email,
-        password: hashedPassword
+    const username1 = username.replace(/\s+/g, '') + shortID();
+    const hashedPassword = await bcrypt.hash(password, 8);
+    const user: UserData = {
+      firstName,
+      lastName,
+      username: username1,
+      email,
+      password: hashedPassword
+    };
+
+    const insertResult = await User.create(user);
+
+    if (insertResult[0].affectedRows === 1) {
+      const [newUser] = await User.findByEmail(email);
+      const token = createLoginToken(newUser[0].id);
+
+      const walletData = {
+        userid: newUser[0].id
       };
+      const wallet = await Wallet.create(walletData);
 
-      const insertResult = await User.create(user);
-
-      if (insertResult[0].affectedRows === 1) {
-        const [newUser] = await User.findByEmail(email);
-        const token = createLoginToken(newUser[0].id);
-
-        const walletData = {
-          userid: newUser[0].id
-        };
-        const wallet = await Wallet.create(walletData);
-
-        return res.status(201).json({ token: token, wallet: wallet });
-      } else {
-        return res.status(500).json({ err: 'User registration failed' });
-      }
-    } catch (error) {
-      console.error(error);
-      return res.status(500).json({ err: 'Server error', error: error });
+      return { token, wallet };
+    } else {
+      throw new Error('User registration failed');
     }
   },
 
-  login: async (req: Request, res: Response): Promise<Response> => {
-    const { email, password } = req.body;
+  login: async (credentials: { email: string; password: string }) => {
+    const { email, password } = credentials;
 
-    try {
-      const [user] = await User.findByEmail(email);
+    const [user] = await User.findByEmail(email);
 
-      if (user.length <= 0) {
-        return res.status(404).json({ err: 'Email incorrect' });
-      }
-
-      const passwordMatch = await bcrypt.compare(password, user[0].password);
-      if (!passwordMatch) {
-        return res.status(401).json({ err: 'Password incorrect' });
-      }
-
-      const token = await createLoginToken(user[0].id);
-
-      return res.status(200).json({ token });
-    } catch (error) {
-      console.error(error);
-      return res.status(500).json({ err: 'Server error' });
+    if (user.length <= 0) {
+      throw new Error('Email incorrect');
     }
+
+    const passwordMatch = await bcrypt.compare(password, user[0].password);
+    if (!passwordMatch) {
+      throw new Error('Password incorrect');
+    }
+
+    const token = await createLoginToken(user[0].id);
+    return { token };
   },
 
-  recoveraccount: async (req: Request, res: Response): Promise<Response> => {
-    const { email } = req.body;
+  recoverAccount: async (email: string) => {
+    const [user] = await User.findByEmail(email);
 
-    try {
-      const [user] = await User.findByEmail(email);
-
-      if (!user) {
-        return res.status(404).json({ err: 'Email incorrect' });
-      }
-
-      const token = createToken(user[0]);
-
-      const sent = await sendRecoverEmail(email, token);
-      if (!sent.status) {
-        return res.status(404).json({ error: 'verification email not sent' });
-      }
-      return res.status(200).json({ sucess: true });
-    } catch (error) {
-      console.error(error);
-      return res.status(500).json({ err: 'Server error' });
+    if (!user) {
+      throw new Error('Email incorrect');
     }
+
+    const token = createToken(user[0]);
+    const sent = await sendRecoverEmail(email, token);
+
+    if (!sent.status) {
+      throw new Error('Verification email not sent');
+    }
+
+    return { success: true };
   },
 
-  resetpassword: async (req: Request, res: Response): Promise<Response> => {
-    const { password, repeatPassword, token } = req.body;
+  resetPassword: async (data: {
+    password: string;
+    repeatPassword: string;
+    token: string;
+  }) => {
+    const { password, repeatPassword, token } = data;
 
     if (password !== repeatPassword) {
-      return res.status(400).json({ error: 'Passwords do not match' });
+      throw new Error('Passwords do not match');
     }
 
-    try {
-      const decoded = await decodeToken(token);
-      const [existingUser] = await User.findByEmail(decoded.email);
+    const decoded = await decodeToken(token);
+    const [existingUser] = await User.findByEmail(decoded.email);
 
-      const hashedPassword = await bcrypt.hash(password, 8);
+    const hashedPassword = await bcrypt.hash(password, 8);
+    const user = { password: hashedPassword };
+    const [insertResult] = await User.update(user, existingUser[0].id);
 
-      const user = { password: hashedPassword };
-      const [insertResult] = await User.update(user, existingUser[0].id);
-
-      if (insertResult.affectedRows === 1) {
-        return res.status(200).json({ msg: 'sucess' });
-      } else {
-        return res.status(500).json({ err: 'Pass NOT updated' });
-      }
-    } catch (error) {
-      console.error(error);
-      return res.status(500).json({ err: 'Server error', error: error });
+    if (insertResult.affectedRows !== 1) {
+      throw new Error('Password NOT updated');
     }
+
+    return { message: 'success' };
   },
 
-  loaddata: async (req: Request, res: Response): Promise<Response> => {
-    const { token } = req.body;
+  loadData: async (token: string) => {
+    const decoded = await decodeToken(token);
+    const [user, userStatistics] = await Promise.all([
+      DynamicData.getUserDataById(decoded.token),
+      Statistics.getStatistics(decoded.token)
+    ]);
 
-    try {
-      const decoded = await decodeToken(token);
-      const [user, userStatistics] = await Promise.all([
-        DynamicData.getUserDataById(decoded.token),
-        Statistics.getStatistics(decoded.token)
-      ]);
-
-      if (!user) {
-        return res.status(404).json({ err: 'Erro data load' });
-      } else {
-        return res.status(200).json({
-          user,
-          userStatistics
-        });
-      }
-    } catch (error) {
-      console.error(error);
-      return res.status(500).json({ err: 'Server error', error: error });
+    if (!user) {
+      throw new Error('Error loading data');
     }
+
+    return { user, userStatistics };
   }
 };
-
-export default authController;

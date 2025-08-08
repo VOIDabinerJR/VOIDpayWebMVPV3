@@ -1,17 +1,31 @@
-import { Request, Response } from 'express';
-import jwt from 'jsonwebtoken';
+import { decodeToken, createToken } from '../utils/jwt';
+import { sendEmail } from '../utils/email';
 import { v4 as uuidv4 } from 'uuid';
-import nodemailer from 'nodemailer';
-import dotenv from 'dotenv';
-import Button from '../models/buttonModel';
 import User from '../models/userModel';
 import App from '../models/appModel';
-import { sendEmail } from '../utils/email';
-import { createToken, decodeToken } from '../utils/jwt';
+import Button from '../models/buttonModel';
 
-dotenv.config();
+export interface User {
+  id: number;
+  email: string;
+  // adicione outros campos conforme necessário
+}
 
-interface ButtonPayload {
+export interface App {
+  id: number;
+  clientId: string;
+  // adicione outros campos conforme necessário
+}
+
+export interface Button {
+  name: string;
+  userid: number;
+  destination: string;
+  buttonToken: string;
+  appid: number;
+}
+
+export interface TokenPayload {
   userid: number;
   destination: string;
   buttonToken: string;
@@ -19,100 +33,101 @@ interface ButtonPayload {
   name: string;
 }
 
-interface ButtonRequest {
+export interface RequestButtonParams {
   clientId: string;
   destination: string;
   name: string;
   token: string;
 }
 
-interface ButtonActivation {
-  name: string;
-  userid: number;
-  destination: string;
-  buttonToken: string;
-  appid: number;
+export interface ActivateButtonParams {
+  tokeny: string;
 }
 
-export const requestButton = async (
-  req: Request,
-  res: Response
-): Promise<Response> => {
-  const { clientId, destination, name, token }: ButtonRequest = req.body;
+class AuthService {
+  async requestButton(params: RequestButtonParams): Promise<{ msg: string }> {
+    const { clientId, destination, name, token } = params;
 
-  try {
     const decoded = await decodeToken(token);
-    const [userResult] = await User.findById(decoded.token);
+    const userResult = await User.findById(decoded.token);
 
-    if (userResult.length > 0) {
-      const [appResult] = await App.findByClientId(clientId);
-
-      if (appResult.length > 0) {
-        const user = userResult[0];
-        const email = user.email;
-        const buttonToken = `VOID-${uuidv4()}`;
-
-        const payload: ButtonPayload = {
-          userid: user.id,
-          destination: destination,
-          buttonToken: buttonToken,
-          appid: appResult[0].id,
-          name: name
-        };
-
-        const tokenData = createToken(payload);
-        console.log(email, tokenData, destination, buttonToken);
-
-        const sent = await sendEmail(
-          email,
-          tokenData,
-          destination,
-          buttonToken
-        );
-
-        if (sent.status) {
-          return res.status(200).json({ msg: 'success' });
-        } else {
-          return res.status(209).json({ msg: 'email not sent' });
-        }
-      }
-    } else {
-      return res.status(404).json({ err: 'user not found' });
+    if (userResult.length === 0) {
+      throw new Error('User not found');
     }
-    return res.status(404).json({ err: 'app not found' });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ err: 'Server error', error });
+
+    const [appResult] = await App.findByClientId(clientId);
+
+    if (appResult.length === 0) {
+      throw new Error('App not found');
+    }
+
+    const user = userResult[0] as User;
+    const buttonToken = `VOID-${uuidv4()}`;
+
+    const payload: TokenPayload = {
+      userid: user.id,
+      destination,
+      buttonToken,
+      appid: appResult[0].id,
+      name
+    };
+
+    const tokenData = createToken(payload);
+    const sent = await sendEmail(
+      user.email,
+      tokenData,
+      destination,
+      buttonToken
+    );
+
+    if (!sent.status) {
+      throw new Error('Email not sent');
+    }
+
+    return { msg: 'success' };
   }
-};
 
-export const activateButton = async (
-  req: Request,
-  res: Response
-): Promise<Response> => {
-  const { tokeny } = req.body;
+  async activateButton(
+    params: ActivateButtonParams
+  ): Promise<{ buttonToken: string }> {
+    const { tokeny } = params;
+    const decoded = await decodeToken(tokeny);
 
-  try {
-    const decodedUnknown = await decodeToken(tokeny);
-    const decoded = decodedUnknown as unknown as ButtonPayload;
+    // Validate that decoded has the required TokenPayload properties
+    if (
+      !decoded ||
+      typeof decoded !== 'object' ||
+      !('name' in decoded) ||
+      !('userid' in decoded) ||
+      !('destination' in decoded) ||
+      !('buttonToken' in decoded) ||
+      !('appid' in decoded)
+    ) {
+      throw new Error('Invalid or malformed token');
+    }
 
-    const button: ButtonActivation = {
-      name: decoded.name,
-      userid: decoded.userid,
-      destination: decoded.destination,
-      buttonToken: decoded.buttonToken,
-      appid: decoded.appid
+    const button: Button = {
+      name: (decoded as TokenPayload).name,
+      userid: (decoded as TokenPayload).userid,
+      destination: (decoded as TokenPayload).destination,
+      buttonToken: (decoded as TokenPayload).buttonToken,
+      appid: (decoded as TokenPayload).appid
     };
 
     const [insertResult] = await Button.create(button);
 
-    if (insertResult.affectedRows === 1) {
-      return res.status(200).json({ buttonToken: decoded.buttonToken });
-    } else {
-      return res.status(500).json({ err: 'Button activation failed' });
+    // Check if insertResult exists and has affectedRows property
+    if (
+      !insertResult ||
+      typeof insertResult.affectedRows !== 'number' ||
+      insertResult.affectedRows !== 1
+    ) {
+      throw new Error('Button activation failed');
     }
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ err: 'Server error', error });
+
+    // Ensure decoded is of type TokenPayload before accessing buttonToken
+    return { buttonToken: (decoded as TokenPayload).buttonToken };
   }
-};
+}
+
+export default new AuthService();
