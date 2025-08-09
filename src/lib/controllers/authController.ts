@@ -49,12 +49,17 @@ export const authService = {
 
     const insertResult = await User.create(user);
 
-    if (insertResult[0].affectedRows === 1) {
-      const [newUser] = await User.findByEmail(email);
-      const token = createLoginToken(newUser[0].id);
+    // Check if insertResult has affectedRows property directly (e.g., MySQL2 returns ResultSetHeader)
+    if ('affectedRows' in insertResult && insertResult.affectedRows === 1) {
+      const userRows = await User.findByEmail(email);
+      if (!Array.isArray(userRows) || userRows.length === 0) {
+        throw new Error('Failed to retrieve newly created user');
+      }
+      const newUser = userRows[0];
+      const token = createLoginToken(newUser.id);
 
       const walletData = {
-        userid: newUser[0].id
+        userid: newUser.id
       };
       const wallet = await Wallet.create(walletData);
 
