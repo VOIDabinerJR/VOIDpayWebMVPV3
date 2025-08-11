@@ -19,14 +19,14 @@ export interface App {
 
 export interface Button {
   name: string;
-  userid: number;
+  userid: string;
   destination: string;
   buttonToken: string;
   appid: number;
 }
 
 export interface TokenPayload {
-  userid: number;
+  userid: string;
   destination: string;
   buttonToken: string;
   appid: number;
@@ -56,36 +56,19 @@ class AuthService {
     }
 
     const appResult = await App.findByClientId(clientId);
-
-    // appResult may be a QueryResult or array, handle accordingly
-    const appRows = Array.isArray(appResult)
-      ? appResult
-      : appResult && 'length' in appResult
-        ? appResult
-        : [];
-    if (!appRows || appRows.length === 0) {
-      throw new Error('App not found');
-    }
-    const app = appRows[0] as unknown as App;
-
-    // userResult may be a QueryResult or array, handle accordingly
-    const userRows = Array.isArray(userResult)
-      ? userResult
-      : userResult && 'length' in userResult
-        ? userResult
-        : [];
-
-    if (!userRows || userRows.length === 0) {
+    if (!appResult) {
       throw new Error('User not found');
     }
-    const user = userRows[0] as unknown as User;
+    const app = appResult[0];
+
+    const user = userResult[0];
     const buttonToken = `VOID-${uuidv4()}`;
 
     const payload: TokenPayload = {
       userid: user.id,
       destination,
       buttonToken,
-      appid: (appRows[0] as any).id,
+      appid: app.id,
       name
     };
 

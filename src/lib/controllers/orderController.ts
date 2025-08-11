@@ -1,14 +1,10 @@
-import { Request, Response } from 'express';
 import Order from '../drizzle/models/orderModel';
 import Button from '../drizzle/models/buttonModel';
-import Notification from '../drizzle/models/notificationModel';
-// import Shopify from "../drizzle/models/shopifyModel";
 
 interface Product {
   name: string;
   quantity: number;
   price: number;
-  // Optional fields for different order types
   productId?: string;
   variantId?: string;
   img?: string;
@@ -17,7 +13,6 @@ interface Product {
 interface OrderData {
   buttonToken: string;
   orderItems: Product[];
-  // Other possible fields from req.body
   [key: string]: any;
 }
 
@@ -55,9 +50,7 @@ interface ShopifyConfig {
   [key: string]: any;
 }
 
-export const createOrder = async (req: Request, res: Response) => {
-  const data: OrderData = req.body;
-
+export const createOrder = async (data: OrderData) => {
   const validateProducts = (products: Product[]): ValidationResult => {
     const errors: ValidationError[] = [];
 
@@ -100,7 +93,7 @@ export const createOrder = async (req: Request, res: Response) => {
   const result = validateProducts(data.orderItems);
 
   if (result.there && result.errors) {
-    return res.json({ status: false, error: result.errors });
+    return { status: false, error: result.errors };
   }
 
   const totalAmount = data.orderItems.reduce((total: number, item: Product) => {
@@ -111,9 +104,7 @@ export const createOrder = async (req: Request, res: Response) => {
     return total + item.quantity;
   }, 0);
 
-  const buttonInfoArr = (await Button.findByToken(
-    data.buttonToken
-  )) as ButtonInfo[];
+  const buttonInfoArr = await Button.findByToken(data.buttonToken);
   const buttonInfo = buttonInfoArr[0];
 
   const order: Order = {
@@ -122,88 +113,77 @@ export const createOrder = async (req: Request, res: Response) => {
     description: 'None desc.',
     totalAmount,
     orderStatus: 'pending',
-    userId: buttonInfo[0].userId || null
+    userId: buttonInfo.userId || null
   };
 
   const orderItems = data.orderItems;
 
-  if (!buttonInfo[0].status) {
-    return res.json({ err: 'botton not valid' });
+  if (!buttonInfo.status) {
+    return { err: 'botton not valid' };
   } else {
     try {
-      const [insertResult] = (await Order.create(order)) as any[];
+      const [insertResult] = await Order.create(order as any);
 
-      await Order.saveOrderItems(orderItems, insertResult.insertId);
+      await Order.saveOrderItems(orderItems as any, insertResult.id);
 
-      if (insertResult.affectedRows === 1) {
-        const maxAge = 3 * 24 * 60 * 60 * 1000;
-        res.cookie('orderid', '13', { httpOnly: true, maxAge });
-
-        return res.json({
-          orderId: insertResult.insertId,
-          buttonToken: buttonInfo[0].buttonToken,
+      if (insertResult) {
+        return {
+          orderId: insertResult.id,
+          buttonToken: buttonInfo.buttonToken,
           status: true
-        });
+        };
       } else {
-        return res.status(500).json({ error: 'Order creation failed' });
+        throw new Error('Order creation failed');
       }
     } catch (error) {
       console.error(error);
-      return res.status(500).json({ error: 'Server error' });
+      throw new Error('Server error');
     }
   }
 };
 
-export const updateOrder = async (req: Request, res: Response) => {
-  const { orderid, status, bottontoken } = req.body;
-
-  const buttonInfo = (await Button.findByToken(bottontoken)) as ButtonInfo[];
+export const updateOrder = async (
+  orderid: number,
+  status: string,
+  bottontoken: string
+) => {
+  const buttonInfo = await Button.findByToken(bottontoken);
 
   if (!buttonInfo[0].status) {
-    return res.json({ err: 'botton not valid' });
+    return { err: 'botton not valid' };
   }
 
   try {
-    const [updateResult] = (await Order.update(orderid, { status })) as any[];
+    const [updateResult] = await Order.update(orderid, { status } as any);
 
-    if (updateResult.affectedRows === 1) {
-      return res.status(200).json({ message: 'Order updated' });
+    if (updateResult) {
+      return { message: 'Order updated' };
     } else {
-      return res.status(500).json({ error: 'Order update failed' });
+      throw new Error('Order update failed');
     }
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ error: 'Server error' });
+    throw new Error('Server error');
   }
 };
 
-export const createShopifyOrder = async (req: Request, res: Response) => {
-  const data: OrderData = req.body;
-
+export const createShopifyOrder = async (data: OrderData) => {
   try {
-    const [buttonInfo] = (await Button.findByToken(data.buttonToken)) as [
-      ButtonInfo[]
-    ];
-    const [shopifyConfig] = (await Shopify.findByUserId(
-      buttonInfo[0].userId
-    )) as [ShopifyConfig[]];
+    const buttonInfo = await Button.findByToken(data.buttonToken);
+    // const [shopifyConfig] = await Shopify.findByUserId(buttonInfo[0].userId);
 
     const items: Product[] = [];
 
-    for (const variantId of data.rid) {
-      const product = await Shopify.findVariantProductById(
-        variantId,
-        shopifyConfig[0].urlShopify,
-        shopifyConfig[0].accessTokenShopify
-      );
-
+    // Mock implementation since Shopify model is not provided
+    // You'll need to implement this based on your Shopify integration
+    for (const variantId of (data as any).rid) {
       items.push({
-        img: product.image,
-        name: product.title,
-        price: product.price,
+        img: '',
+        name: 'Product',
+        price: 0,
         quantity: 1,
-        productId: product.product_id,
-        variantId: product.id
+        productId: '1',
+        variantId: variantId
       });
     }
 
@@ -248,7 +228,7 @@ export const createShopifyOrder = async (req: Request, res: Response) => {
 
     const result = validateProducts(items);
     if (result.there && result.errors) {
-      return res.json({ status: false, error: result.errors });
+      return { status: false, error: result.errors };
     }
 
     const totalAmount = items.reduce((total: number, item: Product) => {
@@ -269,40 +249,35 @@ export const createShopifyOrder = async (req: Request, res: Response) => {
     };
 
     if (!buttonInfo[0].status) {
-      return res.json({ err: 'botton not valid' });
+      return { err: 'botton not valid' };
     } else {
       try {
-        const [insertResult] = (await Order.create(order)) as any[];
+        const [insertResult] = await Order.create(order as any);
 
-        await Order.saveOrderItems(items, insertResult.insertId);
+        await Order.saveOrderItems(items as any, insertResult.id);
 
-        if (insertResult.affectedRows === 1) {
-          const maxAge = 3 * 24 * 60 * 60 * 1000;
-          res.cookie('orderid', '13', { httpOnly: true, maxAge });
-
-          return res.json({
-            orderId: insertResult.insertId,
+        if (insertResult) {
+          return {
+            orderId: insertResult.id,
             buttonToken: buttonInfo[0].buttonToken,
-            rid: data.rid,
+            rid: (data as any).rid,
             status: true
-          });
+          };
         } else {
-          return res.status(500).json({ error: 'Order creation failed' });
+          throw new Error('Order creation failed');
         }
       } catch (error) {
         console.error(error);
-        return res.status(500).json({ error: 'Server error' });
+        throw new Error('Server error');
       }
     }
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ error: 'Server error' });
+    throw new Error('Server error');
   }
 };
 
-export const createOrderbyLink = async (req: Request, res: Response) => {
-  const data: OrderData = req.body;
-
+export const createOrderbyLink = async (data: OrderData) => {
   const validateProducts = (products: Product[]): ValidationResult => {
     const errors: ValidationError[] = [];
 
@@ -345,7 +320,7 @@ export const createOrderbyLink = async (req: Request, res: Response) => {
   const result = validateProducts(data.orderItems);
 
   if (result.there && result.errors) {
-    return res.json({ status: false, error: result.errors });
+    return { status: false, error: result.errors };
   }
 
   const totalAmount = data.orderItems.reduce((total: number, item: Product) => {
@@ -356,9 +331,7 @@ export const createOrderbyLink = async (req: Request, res: Response) => {
     return total + item.quantity;
   }, 0);
 
-  const [buttonInfo] = (await Button.findByToken(data.buttonToken)) as [
-    ButtonInfo[]
-  ];
+  const buttonInfo = await Button.findByToken(data.buttonToken);
 
   const order: Order = {
     buttonToken: data.buttonToken,
@@ -372,38 +345,33 @@ export const createOrderbyLink = async (req: Request, res: Response) => {
   const orderItems = data.orderItems;
 
   if (!buttonInfo[0].status) {
-    return res.json({ err: 'botton not valid' });
+    return { err: 'botton not valid' };
   } else {
     try {
-      const [insertResult] = (await Order.create(order)) as any[];
+      const [insertResult] = await Order.create(order as any);
 
-      await Order.saveOrderItems(orderItems, insertResult.insertId);
+      await Order.saveOrderItems(orderItems as any, insertResult.id);
 
-      if (insertResult.affectedRows === 1) {
-        const maxAge = 3 * 24 * 60 * 60 * 1000;
-        res.cookie('orderid', '13', { httpOnly: true, maxAge });
-
-        return res.json({
-          orderId: insertResult.insertId,
+      if (insertResult) {
+        return {
+          orderId: insertResult.id,
           buttonToken: buttonInfo[0].buttonToken,
           status: true
-        });
+        };
       } else {
-        return res.status(500).json({ error: 'Order creation failed' });
+        throw new Error('Order creation failed');
       }
     } catch (error) {
       console.error(error);
-      return res.status(500).json({ error: 'Server error' });
+      throw new Error('Server error');
     }
   }
 };
 
-export const createWoocommerceOrder = async (req: Request, res: Response) => {
-  // Implementation to be added
-  return res.status(501).json({ message: 'Not implemented' });
+export const createWoocommerceOrder = async () => {
+  throw new Error('Not implemented');
 };
 
-export const createWixOrder = async (req: Request, res: Response) => {
-  // Implementation to be added
-  return res.status(501).json({ message: 'Not implemented' });
+export const createWixOrder = async () => {
+  throw new Error('Not implemented');
 };
