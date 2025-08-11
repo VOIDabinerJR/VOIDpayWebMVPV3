@@ -1,8 +1,8 @@
-import { ResultSetHeader, RowDataPacket } from 'mysql2';
-import db from '../config/db';
-
-interface Order {
-  id?: number | string;
+import { eq, inArray } from 'drizzle-orm';
+import { db } from '../db';
+import { orders, orderItems } from '../schema';
+import { orderStatusEnum } from '../schema';
+interface OrderInsert {
   userId: string;
   contactName: string;
   email: string;
@@ -10,27 +10,24 @@ interface Order {
   address: string;
   city: string;
   postCode: string;
-  orderStatus?: string;
+  orderStatus?: 'Pending' | 'Completed' | 'Cancelled' | 'refunded';
   paymentMethod?: string;
-  totalAmount?: number;
+  totalAmount?: string;
   buttonToken: string;
-  ivaTax: number;
+  ivaTax: string;
   iva: string;
   shippingCost: string;
-  createdAt?: Date;
-  updatedAt?: Date;
 }
 
-interface OrderItem {
-  itemId?: number | string;
+interface OrderItemInsert {
   name: string;
-  price: number;
+  price: string;
   quantity: number;
-  productId: number | string;
+  productId: string;
   img: string;
   imgAlt: string;
-  orderId: number | string;
-  variantId: number | string;
+  orderId: number;
+  variantId: string;
 }
 
 interface ShopifyVariant {
@@ -81,118 +78,108 @@ interface ShopifyOrderData {
   };
 }
 
-const Order = {
-  async create(order: Order): Promise<ResultSetHeader> {
-    const [result] = await db.query<ResultSetHeader>(
-      'INSERT INTO orders SET ?',
-      order
-    );
+export const Order = {
+  async create(order: OrderInsert) {
+    if (order.totalAmount === undefined) {
+      throw new Error('totalAmount is required');
+    }
+    const result = await db
+      .insert(orders)
+      .values({ ...order, totalAmount: order.totalAmount })
+      .returning();
     return result;
   },
 
-  async update(
-    id: number | string,
-    order: Partial<Order>
-  ): Promise<ResultSetHeader> {
-    const [result] = await db.query<ResultSetHeader>(
-      'UPDATE orders SET ? WHERE id = ?',
-      [order, id]
-    );
+  async update(id: number, orderData: Partial<OrderInsert>) {
+    const result = await db
+      .update(orders)
+      .set({ ...orderData, updatedAt: new Date() })
+      .where(eq(orders.id, id))
+      .returning();
     return result;
   },
 
-  async updateStatus(
-    id: number | string,
-    status: string
-  ): Promise<ResultSetHeader> {
-    const [result] = await db.query<ResultSetHeader>(
-      'UPDATE orders SET orderStatus = ? WHERE id = ?',
-      [status, id]
-    );
+  async updateStatus(id: number, status: string) {
+    const allowedStatuses = ['Pending', 'Completed', 'Cancelled', 'refunded'];
+    if (!allowedStatuses.includes(status)) {
+      throw new Error(`Invalid status: ${status}`);
+    }
+    const result = await db
+      .update(orders)
+      .set({
+        orderStatus: status as
+          | 'Pending'
+          | 'Completed'
+          | 'Cancelled'
+          | 'refunded',
+        updatedAt: new Date()
+      })
+      .where(eq(orders.id, id))
+      .returning();
+    return result;
+  },
+  async findById(id: number) {
+    const result = await db.select().from(orders).where(eq(orders.id, id));
+    return result[0];
+  },
+
+  async findByIdOrderItems(id: number) {
+    const result = await db
+      .select()
+      .from(orderItems)
+      .where(eq(orderItems.orderId, id));
     return result;
   },
 
-  async findById(id: number | string): Promise<Order> {
-    const [rows] = await db.query<RowDataPacket[]>(
-      'SELECT * FROM orders WHERE id = ?',
-      [id]
-    );
-    return rows[0] as Order;
+  async findItemsIdByOrderId(id: number) {
+    const result = await db
+      .select({ productId: orderItems.productId })
+      .from(orderItems)
+      .where(eq(orderItems.orderId, id));
+    return result;
   },
 
-  async findByIdOrderItems(id: number | string): Promise<OrderItem[]> {
-    const [rows] = await db.query<RowDataPacket[]>(
-      'SELECT * FROM orderitems WHERE orderId = ?',
-      [id]
-    );
-    return rows as OrderItem[];
-  },
+  // async findVariantIdByOrderId(id: number) {
+  //   const result = await db
+  //     .select({ variantId: orderItems.variantId })
+  //     .from(orderItems)
+  //     .where(eq(orderItems.orderId, id));
+  //   return result;
+  // },
 
-  async findItemsIdByOrderId(
-    id: number | string
-  ): Promise<{ productId: number | string }[]> {
-    const [rows] = await db.query<RowDataPacket[]>(
-      'SELECT productId FROM orderitems WHERE orderId = ?',
-      [id]
-    );
-    return rows as { productId: number | string }[];
-  },
-
-  async findvariantIdByOrderId(
-    id: number | string
-  ): Promise<{ variantId: number | string }[]> {
-    const [rows] = await db.query<RowDataPacket[]>(
-      'SELECT variantId FROM orderitems WHERE orderId = ?',
-      [id]
-    );
-    return rows as { variantId: number | string }[];
-  },
-
-  async saveOrderItems(
-    items: OrderItem[],
-    orderId: number | string
-  ): Promise<ResultSetHeader> {
+  async saveOrderItems(items: OrderItemInsert[], orderId: number) {
     if (!Array.isArray(items) || items.length === 0) {
       throw new Error('Você deve fornecer um array de itens para inserção.');
     }
 
-    const values = items.map((item) => [
-      item.name,
-      item.price,
-      item.quantity,
-      item.productId,
-      item.img,
-      item.imgAlt,
-      orderId,
-      item.variantId
-    ]);
+    const itemsWithOrderId = items.map((item) => ({
+      ...item,
+      orderId
+    }));
 
-    const [result] = await db.query<ResultSetHeader>(
-      'INSERT INTO orderitems (name, price, quantity, productId, img, imgAlt, orderId, variantId) VALUES ?',
-      [values]
-    );
-
+    const result = await db
+      .insert(orderItems)
+      .values(itemsWithOrderId)
+      .returning();
     return result;
   },
 
-  async deleteOrderItems(
-    itemIds: (number | string)[]
-  ): Promise<ResultSetHeader> {
+  async deleteOrderItems(itemIds: number[]) {
     if (!Array.isArray(itemIds) || itemIds.length === 0) {
       throw new Error(
         'Você deve fornecer um array de IDs de itens para exclusão.'
       );
     }
 
-    const [result] = await db.query<ResultSetHeader>(
-      'DELETE FROM orderitems WHERE itemId IN (?)',
-      [itemIds]
-    );
+    const result = await db
+      .delete(orderItems)
+      .where(inArray(orderItems.orderId, itemIds))
+      .returning();
     return result;
   },
 
   async createShopifyOrder(
-    order: Order,
+    order: OrderInsert,
     amount: number,
     variants: ShopifyVariant[],
     shop: string,

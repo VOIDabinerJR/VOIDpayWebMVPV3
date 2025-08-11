@@ -1,0 +1,29 @@
+{
+  "name": "drizzle-models",
+  "version": "1.0.0",
+  "description": "Models convertidos para Drizzle ORM com PostgreSQL",
+  "main": "index.ts",
+  "scripts": {
+    "generate": "drizzle-kit generate",
+    "migrate": "drizzle-kit migrate",
+    "studio": "drizzle-kit studio"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.29.0",
+    "pg": "^8.11.0"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.10.0",
+    "drizzle-kit": "^0.20.0",
+    "typescript": "^5.0.0"
+  },
+  "keywords": [
+    "drizzle",
+    "orm",
+    "postgresql",
+    "typescript"
+  ],
+  "author": "",
+  "license": "ISC"
+}
+

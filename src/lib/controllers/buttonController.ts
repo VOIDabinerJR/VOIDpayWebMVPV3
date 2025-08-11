@@ -1,9 +1,9 @@
 import { decodeToken, createToken } from '../utils/jwt';
 import { sendEmail } from '../utils/email';
 import { v4 as uuidv4 } from 'uuid';
-import User from '../models/userModel';
-import App from '../models/appModel';
-import Button from '../models/buttonModel';
+import User from '../drizzle/models/userModel';
+import App from '../drizzle/models/appModel';
+import Button from '../drizzle/models/buttonModel';
 
 export interface User {
   id: number;

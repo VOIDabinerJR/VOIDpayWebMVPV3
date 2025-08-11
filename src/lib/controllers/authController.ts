@@ -1,9 +1,9 @@
 // app/controllers/authController.ts
 import bcrypt from 'bcryptjs';
-import User from '../models/userModel';
-import DynamicData from '../models/dynamicDataModel';
-import Wallet from '../models/walletModel';
-import Statistics from '../models/statisticsModel';
+import User from '../drizzle/models/userModel';
+import DynamicData from '../drizzle/models/dynamicDataModel';
+import Wallet from '../drizzle/models/walletModel';
+// import Statistics from '../drizzle/models/statisticsModel';
 import { createLoginToken, createToken, decodeToken } from '../utils/jwt';
 import { sendRecoverEmail } from '../utils/email';
 import { shortID } from '../utils/functions';
@@ -47,54 +47,54 @@ export const authService = {
       password: hashedPassword
     };
 
-    const insertResult = await User.create(user);
+    const [newUser] = await User.create(user);
 
-    // Check if insertResult has affectedRows property directly (e.g., MySQL2 returns ResultSetHeader)
-    if ('affectedRows' in insertResult && insertResult.affectedRows === 1) {
-      const userRows = await User.findByEmail(email);
-      if (!Array.isArray(userRows) || userRows.length === 0) {
-        throw new Error('Failed to retrieve newly created user');
-      }
-      const newUser = userRows[0];
-      const token = createLoginToken(newUser.id);
-
-      const walletData = {
-        userid: newUser.id
-      };
-      const wallet = await Wallet.create(walletData);
-
-      return { token, wallet };
-    } else {
-      throw new Error('User registration failed');
+    if (!newUser || !newUser.id) {
+      throw new Error('Failed to create user');
     }
+
+    const token = createLoginToken(newUser.id);
+
+    const walletData = {
+      userId: newUser.id
+    };
+    const [wallet] = await Wallet.create(walletData);
+
+    return { token, wallet };
   },
 
   login: async (credentials: { email: string; password: string }) => {
     const { email, password } = credentials;
 
-    const [user] = await User.findByEmail(email);
-
-    if (user.length <= 0) {
-      throw new Error('Email incorrect');
-    }
-
-    const passwordMatch = await bcrypt.compare(password, user[0].password);
-    if (!passwordMatch) {
-      throw new Error('Password incorrect');
-    }
-
-    const token = await createLoginToken(user[0].id);
-    return { token };
-  },
-
-  recoverAccount: async (email: string) => {
-    const [user] = await User.findByEmail(email);
+    const users = await User.findByEmail(email);
+    const user = users[0];
 
     if (!user) {
       throw new Error('Email incorrect');
     }
 
-    const token = createToken(user[0]);
+    if (!user.password) {
+      throw new Error('User data is invalid');
+    }
+
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    if (!passwordMatch) {
+      throw new Error('Password incorrect');
+    }
+
+    const token = createLoginToken(user.id);
+    return { token };
+  },
+
+  recoverAccount: async (email: string) => {
+    const users = await User.findByEmail(email);
+    const user = users[0];
+
+    if (!user) {
+      throw new Error('Email incorrect');
+    }
+
+    const token = createToken(user);
     const sent = await sendRecoverEmail(email, token);
 
     if (!sent.status) {
@@ -116,30 +116,36 @@ export const authService = {
     }
 
     const decoded = await decodeToken(token);
-    const [existingUser] = await User.findByEmail(decoded.email);
+    const users = await User.findByEmail(decoded.email);
+    const existingUser = users[0];
+
+    if (!existingUser) {
+      throw new Error('User not found');
+    }
 
     const hashedPassword = await bcrypt.hash(password, 8);
-    const user = { password: hashedPassword };
-    const [insertResult] = await User.update(user, existingUser[0].id);
+    const [updatedUser] = await User.update(existingUser.id, {
+      password: hashedPassword
+    });
 
-    if (insertResult.affectedRows !== 1) {
+    if (!updatedUser) {
       throw new Error('Password NOT updated');
     }
 
     return { message: 'success' };
-  },
-
-  loadData: async (token: string) => {
-    const decoded = await decodeToken(token);
-    const [user, userStatistics] = await Promise.all([
-      DynamicData.getUserDataById(decoded.token),
-      Statistics.getStatistics(decoded.token)
-    ]);
-
-    if (!user) {
-      throw new Error('Error loading data');
-    }
-
-    return { user, userStatistics };
   }
+
+  // loadData: async (token: string) => {
+  //   const decoded = await decodeToken(token);
+  //   const [user, userStatistics] = await Promise.all([
+  //     DynamicData.getUserDataById(decoded.token),
+  //     Statistics.getStatistics(decoded.token)
+  //   ]);
+
+  //   if (!user) {
+  //     throw new Error('Error loading data');
+  //   }
+
+  //   return { user, userStatistics };
+  // }
 };
