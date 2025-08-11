@@ -1,11 +1,11 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
-import User from '../models/userModel';
-import UserDetails from '../models/userDetailsModel';
-import BusinessDetails from '../models/businessModel';
-import App from '../models/appModel';
-import Wallet from '../models/walletModel';
-import DynamicData from '../models/dynamicDataModell';
+import User from '../drizzle/models/userModel';
+import UserDetails from '../drizzle/models/userDetailsModel';
+import BusinessDetails from '../drizzle/models/businessModel';
+import App from '../drizzle/models/appModel';
+import Wallet from '../drizzle/models/walletModel';
+// import DynamicData from '../drizzle/models/dynamicDataModell';
 import { createLoginToken, createToken, decodeToken } from '../utils/jwt';
 import { sendEmail, sendRecoverEmail } from '../utils/email';
 import { populateUpdatedFields } from '../utils/functions.js';
@@ -73,9 +73,9 @@ const pagesController: PagesController = {
       }
 
       const decoded = await decodeToken(token);
-      const [existingUser] = await User.findById(decoded.token);
+      const existingUser = await User.findById(decoded.token);
 
-      if (existingUser.length <= 0) {
+      if (!existingUser) {
         return res.status(400).json({ error: 'user not found' });
       }
 

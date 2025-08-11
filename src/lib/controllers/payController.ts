@@ -3,11 +3,11 @@ import path from 'path';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
-import User from '../models/userModel';
-import Button from '../models/buttonModel';
-import Order from '../models/orderModel';
-import Shopify from '../models/shopifyModel';
-import Wallet from '../models/walletModel';
+import User from '../drizzle/models/userModel';
+import Button from '../drizzle/models/buttonModel';
+import Order from '../drizzle/models/orderModel';
+// import Shopify from '../drizzle/models/shopifyModel';
+import Wallet from '../drizzle/models/walletModel';
 import {
   createToken,
   createCardToken,
