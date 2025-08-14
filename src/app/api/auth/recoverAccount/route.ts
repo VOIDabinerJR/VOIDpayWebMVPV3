@@ -1,14 +1,13 @@
-// app/api/order/updateOrder/route.ts
+// app/api/auth/register/route.ts
 import { NextResponse } from 'next/server';
-import { orderService } from '@/lib/controllers/orderController';
+import { authService } from '@/lib/controllers/authController';
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const result = await orderService.createOrder(body);
+    const result = await authService.recoverAccount(body);
     return NextResponse.json(result);
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
 }
-

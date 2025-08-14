@@ -14,7 +14,15 @@ export interface User {
 export interface App {
   id: number;
   clientId: string;
-  // adicione outros campos conforme necessário
+
+  userId: string;
+
+  clientSecret: string;
+  name: string | null;
+  type: "test" | "production";
+  status: "Active" | "Inactive" | null;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface Button {
@@ -41,14 +49,17 @@ export interface RequestButtonParams {
 }
 
 export interface ActivateButtonParams {
-  tokeny: string;
+  token: string;
 }
 
-class AuthService {
-  async requestButton(params: RequestButtonParams): Promise<{ msg: string }> {
+class buttonService {
+  async requestButton(params: RequestButtonParams): Promise<{ payload: TokenPayload;app:App; tokenData: string }> {
     const { clientId, destination, name, token } = params;
 
+
     const decoded = await decodeToken(token);
+
+
     const userResult = await User.findById(decoded.token);
 
     if (!userResult) {
@@ -59,8 +70,8 @@ class AuthService {
     if (!appResult) {
       throw new Error('User not found');
     }
-    const app = appResult[0];
-
+     const app = appResult[0];
+    
     const user = userResult[0];
     const buttonToken = `VOID-${uuidv4()}`;
 
@@ -73,6 +84,8 @@ class AuthService {
     };
 
     const tokenData = createToken(payload);
+    return { payload, app, tokenData }
+    
     const sent = await sendEmail(
       user.email,
       tokenData,
@@ -84,14 +97,14 @@ class AuthService {
       throw new Error('Email not sent');
     }
 
-    return { msg: 'success' };
+    // return { msg: 'success' };
   }
 
   async activateButton(
     params: ActivateButtonParams
   ): Promise<{ buttonToken: string }> {
-    const { tokeny } = params;
-    const decoded = await decodeToken(tokeny);
+    const { token } = params;
+    const decoded = await decodeToken(token);
 
     // Validate that decoded has the required TokenPayload properties
     if (
@@ -115,7 +128,7 @@ class AuthService {
     };
 
     const [insertResult] = await Button.create(button);
-
+    console.log(insertResult);
     // Check if insertResult exists and has affectedRows property
     // Check if insertResult exists and is an array with at least one element and affectedRows is 1
     if (
@@ -133,4 +146,4 @@ class AuthService {
   }
 }
 
-export default new AuthService();
+export default new buttonService();

@@ -49,8 +49,8 @@ interface ShopifyConfig {
   accessTokenShopify: string;
   [key: string]: any;
 }
-
-export const createOrder = async (data: OrderData) => {
+export const orderService = {
+ createOrder :async (data: OrderData) => {
   const validateProducts = (products: Product[]): ValidationResult => {
     const errors: ValidationError[] = [];
 
@@ -112,7 +112,7 @@ export const createOrder = async (data: OrderData) => {
     products: totalItems,
     description: 'None desc.',
     totalAmount,
-    orderStatus: 'pending',
+    orderStatus: 'Pending',
     userId: buttonInfo.userId || null
   };
 
@@ -140,9 +140,9 @@ export const createOrder = async (data: OrderData) => {
       throw new Error('Server error');
     }
   }
-};
+},
 
-export const updateOrder = async (
+updateOrder : async (
   orderid: number,
   status: string,
   bottontoken: string
@@ -165,9 +165,9 @@ export const updateOrder = async (
     console.error(error);
     throw new Error('Server error');
   }
-};
+},
 
-export const createShopifyOrder = async (data: OrderData) => {
+createShopifyOrder : async (data: OrderData) => {
   try {
     const buttonInfo = await Button.findByToken(data.buttonToken);
     // const [shopifyConfig] = await Shopify.findByUserId(buttonInfo[0].userId);
@@ -275,9 +275,9 @@ export const createShopifyOrder = async (data: OrderData) => {
     console.error(error);
     throw new Error('Server error');
   }
-};
+},
 
-export const createOrderbyLink = async (data: OrderData) => {
+ createOrderbyLink :async (data: OrderData) => {
   const validateProducts = (products: Product[]): ValidationResult => {
     const errors: ValidationError[] = [];
 
@@ -366,12 +366,11 @@ export const createOrderbyLink = async (data: OrderData) => {
       throw new Error('Server error');
     }
   }
-};
-
-export const createWoocommerceOrder = async () => {
+},
+createWoocommerceOrder : async () => {
   throw new Error('Not implemented');
-};
-
-export const createWixOrder = async () => {
+},
+createWixOrder : async () => {
   throw new Error('Not implemented');
+}
 };

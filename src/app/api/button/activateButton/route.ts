@@ -1,6 +1,7 @@
 // app/api/auth/login/route.ts
 import { NextResponse } from 'next/server';
-import { buttonService } from '@/lib/controllers/buttonController';
+import buttonService from '@/lib/controllers/buttonController';
+
 
 export async function POST(request: Request) {
   try {
