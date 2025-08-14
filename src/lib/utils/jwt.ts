@@ -40,7 +40,7 @@ const createToken = (payload: JwtPayload): string => {
   if (!process.env.PAY_SECRET) {
     throw new Error('PAY_SECRET environment variable is not defined');
   }
-  return jwt.sign(payload, process.env.PAY_SECRET, {
+  return jwt.sign(payload, process.env.PAY_SECRET || 'oi', {
     expiresIn: '3d'
   });
 };

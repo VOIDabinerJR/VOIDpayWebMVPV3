@@ -15,7 +15,9 @@
     "lint:strict": "eslint --max-warnings=0 src",
     "format": "prettier --write .",
     "format:check": "prettier -c -w .",
-    "prepare": "husky"
+    "prepare": "husky",
+    "migrate:generate": "drizzle-kit generate --config drizzle.config.ts",
+    "migrate:run": "tsx scripts/migrate.ts"
   },
   "lint-staged": {
     "**/*.{js,jsx,tsx,ts,css,less,scss,sass}": [
@@ -129,6 +131,7 @@
     "lint-staged": "^15.2.11",
     "prettier": "3.4.2",
     "prettier-plugin-tailwindcss": "^0.6.11",
+    "tsx": "^4.20.4",
     "tw-animate-css": "^1.2.4"
   },
   "overrides": {

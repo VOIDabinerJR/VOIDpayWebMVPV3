@@ -17,6 +17,7 @@ interface UserData {
 }
 
 export const authService = {
+  
   register: async (userData: {
     firstName: string;
     lastName: string;
@@ -66,6 +67,7 @@ export const authService = {
   login: async (credentials: { email: string; password: string }) => {
     const { email, password } = credentials;
 
+
     const users = await User.findByEmail(email);
     const user = users[0];
 
@@ -82,7 +84,7 @@ export const authService = {
       throw new Error('Password incorrect');
     }
 
-    const token = createLoginToken(user.id);
+    const token = await createLoginToken(user.id);
     return { token };
   },
 

@@ -36,8 +36,7 @@ npm install
 
 2. Configure a variável de ambiente `DATABASE_URL`:
 ```bash
-export DATABASE_URL="postgresql://username:password@localhost:5432/database_name"
-```
+export DATABASE_URL= "postgresql://company_db_r9xu_user:8YDLL4rGtk6X4xY9lvxNwzk9BvNMPY7Z@dpg-d2f0mqk9c44c739gq0n0-a.oregon-postgres.render.com/company_db_r9xu"
 
 ## Uso
 
