@@ -1,3 +1,4 @@
+'use client';
 import PageContainer from '@/components/layout/page-container';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -15,6 +16,10 @@ import {
   IconInfoCircle
 } from '@tabler/icons-react';
 import React from 'react';
+// import { auth } from '@clerk/nextjs/server';
+
+
+import { useUser } from '@clerk/nextjs';
 
 export default function OverViewLayout({
   sales,
@@ -35,7 +40,7 @@ export default function OverViewLayout({
     { id: 1, text: 'Novo pedido recebido', time: '10 min atrás' },
     { id: 2, text: 'Pagamento confirmado', time: '1 hora atrás' }
   ];
-
+  const { user } = useUser();
   return (
     <PageContainer>
       <div className='flex flex-1 flex-col space-y-4'>
@@ -43,8 +48,11 @@ export default function OverViewLayout({
         <div className='flex items-center justify-between'>
           <div>
             <h2 className='text-2xl font-bold tracking-tight'>
-              Olá, {userName} 👋
+              Olá, {user?.firstName || 'Usuário'} 👋
+              
             </h2>
+            {/* CAMPO TEMPORARIO */}
+            {/* <p style={{ color: 'red' }}>User: {user ? ' ' + JSON.stringify(user, null, 2) : ''}</p> */}
             <p className='text-muted-foreground'>
               Aqui está o resumo do seu negócio
             </p>
@@ -55,9 +63,9 @@ export default function OverViewLayout({
         <div className='*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs md:grid-cols-2 lg:grid-cols-4'>
           <Card className='@container/card'>
             <CardHeader>
-              <CardDescription>Ganhos Mensais</CardDescription>
+              <CardDescription>Ultimos 30 dias</CardDescription>
               <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
-                5.250 MTn
+                633.245 MTn
               </CardTitle>
               <CardAction>
                 <Badge variant='outline'>
@@ -80,12 +88,12 @@ export default function OverViewLayout({
             <CardHeader>
               <CardDescription>Ganhos Anuais</CardDescription>
               <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
-                2.500 MTn
+                28.997,35 MTn
               </CardTitle>
               <CardAction>
                 <Badge variant='outline'>
                   <IconTrendingUp />
-                  +15%
+                  +9.23%
                 </Badge>
               </CardAction>
             </CardHeader>
@@ -103,7 +111,7 @@ export default function OverViewLayout({
             <CardHeader>
               <CardDescription>Pagamentos Pendentes</CardDescription>
               <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
-                350 MTn
+                64.455 MTn
               </CardTitle>
               <CardAction>
                 <Badge variant='outline'>
@@ -118,7 +126,7 @@ export default function OverViewLayout({
                 <IconTrendingDown className='size-4' />
               </div>
               <div className='text-muted-foreground'>
-                12 pedidos aguardando pagamento
+                112 pedidos aguardando pagamento
               </div>
             </CardFooter>
           </Card>
@@ -127,7 +135,7 @@ export default function OverViewLayout({
             <CardHeader>
               <CardDescription>Checkouts Realizados</CardDescription>
               <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
-                128
+                1428
               </CardTitle>
               <CardAction>
                 <Badge variant='outline'>
