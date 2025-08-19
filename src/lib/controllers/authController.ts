@@ -135,19 +135,24 @@ export const authService = {
     }
 
     return { message: 'success' };
+  },
+
+  loadData: async (data: {
+    token: string;
+  }) => {
+    console.log("aaaa" + data.token);
+    const decoded = await decodeToken(data.token);
+    // const [user, userStatistics] = await Promise.all([
+    const [user] = await Promise.all([
+      DynamicData.getUserDataById(decoded.token),
+      // Statistics.getStatistics(decoded.token)
+    ]);
+
+    if (!user) {
+      throw new Error('Error loading data');
+    }
+
+    return { user };
+    // return { user, userStatistics };
   }
-
-  // loadData: async (token: string) => {
-  //   const decoded = await decodeToken(token);
-  //   const [user, userStatistics] = await Promise.all([
-  //     DynamicData.getUserDataById(decoded.token),
-  //     Statistics.getStatistics(decoded.token)
-  //   ]);
-
-  //   if (!user) {
-  //     throw new Error('Error loading data');
-  //   }
-
-  //   return { user, userStatistics };
-  // }
 };
