@@ -16,6 +16,7 @@ import { Code, Server, ShoppingCart } from 'lucide-react';
 import { Progress } from "@/components/ui/progress";
 
 
+
 export default function PaymentSetupPage() {
   const plugin = React.useRef(
     Autoplay({ delay: 5000, stopOnInteraction: true })

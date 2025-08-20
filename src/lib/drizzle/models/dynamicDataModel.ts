@@ -39,21 +39,21 @@ export const StaticDataService = {
 
   async getUserDataById(userId: string) {
     try {
-      const [appsData, botoesData, ordersData, walletData, usuariosData] =
+      const [appsData, buttonsData, ordersData, walletData] =
         await Promise.all([
           this.getApps(userId),
           this.getBotoes(userId),
           this.getOrders(userId.toString()),
           this.getWallet(userId),
-          this.getUsuarios(userId)
+          // this.getUsuarios(userId)
         ]);
 
       const data = {
         apps: appsData,
-        botoes: botoesData,
+        buttons: buttonsData,
         orders: ordersData,
         wallet: walletData,
-        usuarios: usuariosData
+        // usuarios: usuariosData
       };
 
       return data;

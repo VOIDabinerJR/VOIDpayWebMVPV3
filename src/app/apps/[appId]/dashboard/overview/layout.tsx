@@ -1,3 +1,4 @@
+'use client';
 import PageContainer from '@/components/layout/page-container';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -167,6 +168,8 @@ export default async function OverViewLayout({
             <h2 className='text-2xl font-bold tracking-tight'>
               Olá, {userName} 👋
             </h2>
+            {/* CAMPO TEMPORARIO */}
+            {/* <p style={{ color: 'red' }}>User: {user ? ' ' + JSON.stringify(user, null, 2) : ''}</p> */}
             <p className='text-muted-foreground'>
               Aqui está o resumo do seu negócio
             </p>
@@ -178,7 +181,7 @@ export default async function OverViewLayout({
           {/* Ganhos Mensais */}
           <Card className='@container/card'>
             <CardHeader>
-              <CardDescription>Ganhos Mensais</CardDescription>
+              <CardDescription>Ultimos 30 dias</CardDescription>
               <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
                 {estatisticas.ganhosMensais.valor}
               </CardTitle>
