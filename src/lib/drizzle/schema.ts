@@ -44,13 +44,13 @@ export const users = pgTable('users', {
 // User Details table
 export const userDetails = pgTable('user_details', {
   id: serial('id').primaryKey(),
-  address: text('address').notNull(),
-  dateOfBirth: date('date_of_birth').notNull(),
+  address: text('address'),
+  dateOfBirth: date('date_of_birth'),
   country: text('country').default('MZ').notNull(),
   postalCode: text('postal_code'),
-  phone: text('phone').notNull(),
+  phone: text('phone'),
   alternativeEmail: text('alternative_email'),
-  documentId: text('document_id').notNull(),
+  documentId: text('document_id'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
   userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' })
@@ -59,7 +59,7 @@ export const userDetails = pgTable('user_details', {
 // Business Details table
 export const businessDetails = pgTable('business_details', {
   id: serial('id').primaryKey(),
-  businessName: text('business_name').notNull(),
+  businessName: text('business_name'),
   legalDocument: text('legal_document'),
   email: text('email'),
   address: text('address'),

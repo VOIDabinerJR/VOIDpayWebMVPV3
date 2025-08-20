@@ -12,8 +12,8 @@ interface LoginTokenPayload {
 
 interface MobileWalletPaymentDetails {
   transaction_reference?: string;
-  mobileWalletNumber: string;
-  totalAmount: number;
+  mobileWalletNumber?: string;
+  totalAmount?: number; // Torna opcional
   third_party_reference?: string;
   query_reference?: string | null;
   security_credential?: string | null;
@@ -75,6 +75,7 @@ const createLoginToken = async (token: string): Promise<string> => {
   return createToken(payload);
 };
 
+// E na função createMobileWalletToken, forneça um valor padrão:
 const createMobileWalletToken = async (
   orderId: string,
   paymentDetails: MobileWalletPaymentDetails
@@ -84,8 +85,8 @@ const createMobileWalletToken = async (
       paymentDetails.transaction_reference || `VOID${shortID()}`,
     transactionReference:
       paymentDetails.transaction_reference || `VOID${shortID()}`,
-    customer_msisdn: paymentDetails.mobileWalletNumber,
-    amount: paymentDetails.totalAmount,
+    customer_msisdn: paymentDetails.mobileWalletNumber || '0',
+    amount: paymentDetails.totalAmount || 0, // Valor padrão aqui
     third_party_reference:
       paymentDetails.third_party_reference || `COST${shortID()}`,
     orderId: orderId,
@@ -99,12 +100,12 @@ const createMobileWalletToken = async (
   return createToken(payload);
 };
 
-const createCardToken = (a: any, b: any, c: any, d: any): null => {
-  return null;
+const createCardToken = (orderId: any, paymentDetails: any): string => {
+  return '';
 };
 
-const createPaypalToken = (a: any, b: any, c: any, d: any): null => {
-  return null;
+const createPaypalToken = (orderId: any, paymentDetails: any): string => {
+  return '';
 };
 
 export {

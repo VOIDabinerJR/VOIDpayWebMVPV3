@@ -1,12 +1,10 @@
 import { Request, Response } from 'express';
-import path from 'path';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import User from '../drizzle/models/userModel';
 import Button from '../drizzle/models/buttonModel';
 import Order from '../drizzle/models/orderModel';
-// import Shopify from '../drizzle/models/shopifyModel';
 import Wallet from '../drizzle/models/walletModel';
 import {
   createToken,
@@ -67,7 +65,7 @@ export const getPaymentPage = async (
   req: Request,
   res: Response
 ): Promise<Response | void> => {
-  const orderid = req.query.orderid as string;
+  const orderid = Number(req.query.orderid);
   const buttonToken = req.query.buttontoken as string;
   console.log(req.query);
 
@@ -87,9 +85,6 @@ export const getPaymentPage = async (
       const orderData = {
         orderItems: orderItem,
         subtotal: order.totalAmount,
-        ivaTax: order.ivaTax || 20,
-        iva: order.iva || '[Insento]',
-        shippingCost: order.shippingCost || '[GRÁTIS]',
         totalAmount: order.totalAmount
       };
 
@@ -120,7 +115,7 @@ export const processPayment = async (
     postCode: req.body.postCode
   };
 
-  const orderId = req.query.orderid as string;
+  const orderId = Number(req.query.orderid);
   const buttonToken = req.query.buttontoken as string;
   const paymentDetails: PaymentDetails = req.body;
 
@@ -146,9 +141,9 @@ export const processPayment = async (
         return res.json({ error: 'unauthorized' });
       }
 
-      const buttonResult = (await Button.findByToken(buttonToken))?.[0];
-      const order = orderResult as Order;
-      paymentDetails.totalAmount = order.totalAmount;
+      const buttonResult = await Button.findByToken(buttonToken);
+      const order = orderResult;
+      paymentDetails.totalAmount = Number(order.totalAmount);
 
       if (!paymentDetails.paymentMethod) {
         paymentDetails.paymentMethod = 'card';
@@ -188,10 +183,10 @@ export const processPayment = async (
         });
       }
 
-      async function getPaymentToken(option: string): Promise<string> {
+      const getPaymentToken = async (option: string): Promise<string> => {
         switch (option) {
           case 'mobileWallet':
-            return createMobileWalletToken(orderId, paymentDetails);
+            return createMobileWalletToken(orderId.toString(), paymentDetails);
           case 'card':
             return createCardToken(orderId, paymentDetails);
           case 'paypal':
@@ -199,7 +194,7 @@ export const processPayment = async (
           default:
             return 'PAY OPTION INVALID';
         }
-      }
+      };
 
       const token = await getPaymentToken(paymentDetails.paymentMethod);
       const result = await pay(token);
@@ -208,39 +203,14 @@ export const processPayment = async (
 
       if ([200, 401, 409].includes(result.status_code)) {
         // Handle different channels
-        if (req.query.channel === 'shopify') {
+        if (req.query.channel === 'rs') {
           try {
-            console.log(req.query);
-            console.log('entrou aqui 1');
-            const orderResult = await Order.findById(
-              req.query.orderid as string
-            );
-            const result = await Order.findvariantIdByOrderId(
-              req.query.orderid as string
-            );
-            const shopifyUsers = await Shopify.findByUserId(orderResult.userId);
-            const shopifyUser = Array.isArray(shopifyUsers)
-              ? shopifyUsers[0]
-              : shopifyUsers;
-            const info = await Order.createShopifyOrder(
-              billingInfo as any,
-              orderResult.totalAmount,
-              result,
-              a[0].urlShopify,
-              a[0].accessTokenShopify
-            );
-          } catch (error) {
-            console.error(
-              'Erro ao buscar produtos ou criar pedido na Shopify:',
-              error
-            );
-            return res.status(500).json({ error: error.message });
-          }
-        } else if (req.query.channel === 'rs') {
-          try {
-            const url = `${buttonResult[0].destination.toString()}`;
+            const url =
+              (buttonResult && buttonResult[0]?.destination?.toString()) || '';
+            const infoToken = createToken(paymentDetails);
             const dados = { token: infoToken };
-            fetch(url, {
+
+            await fetch(url, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json'
@@ -248,15 +218,15 @@ export const processPayment = async (
               body: JSON.stringify(dados)
             });
           } catch (erro) {
-            console.log('Dados recebidos:', erro);
+            console.log('Error sending data:', erro);
             return res.status(500).json({
               message: 'Payment processed successfully',
-              error: erro || resposta.status
+              error: erro
             });
           }
         }
 
-        const [updateResult] = await Order.update(orderId, {
+        const updateResult = await Order.update(orderId, {
           orderStatus: 'Completed',
           customerEmail: paymentDetails.email,
           paymentMethod: paymentDetails.paymentMethod,
@@ -267,16 +237,16 @@ export const processPayment = async (
 
         if (updateResult.affectedRows === 1) {
           try {
-            const wallet = await Wallet.findByUserId(orderResult[0].userId);
+            const wallet = await Wallet.findByUserId(orderResult.userId);
             console.log(wallet);
-            console.log(orderResult[0].userId);
+            console.log(orderResult.userId);
             if (wallet) {
               const result = await Wallet.deposit(
                 'Wallet',
                 'Costumer Payment',
                 paymentDetails.totalAmount,
                 wallet.id,
-                orderResult[0].userId,
+                orderResult.userId,
                 paymentDetails.transaction_reference,
                 paymentDetails.transaction_reference_received,
                 null
@@ -295,9 +265,7 @@ export const processPayment = async (
           };
 
           try {
-            const [orderItem] = await Order.findByIdOrderItems(
-              req.query.orderid as string
-            );
+            const orderItem = await Order.findByIdOrderItems(orderId);
             try {
               const sent1 = await sendPaymentConfirmationEmail(
                 billingInfo.email,
@@ -305,13 +273,9 @@ export const processPayment = async (
                 transactionData,
                 orderItem
               );
-              const userEmailResult = await User.retunEmail(
-                orderResult[0].userId
-              );
-              const userEmail =
-                Array.isArray(userEmailResult) && userEmailResult.length > 0
-                  ? userEmailResult[0].email
-                  : null;
+              const userEmailResult = await User.retunEmail(orderResult.userId);
+              const userEmail = userEmailResult?.email;
+
               if (userEmail) {
                 const sent2 = await sendPaymentConfirmationEmail(
                   userEmail,
@@ -319,16 +283,15 @@ export const processPayment = async (
                   transactionData,
                   orderItem
                 );
+                console.log(sent2);
               }
-              orderItem;
 
               console.log(sent1);
-              console.log(sent2);
             } catch (error) {
-              console.log(error);
+              console.log('Email error:', error);
             }
           } catch (error) {
-            console.log(error);
+            console.log('Order items error:', error);
           }
 
           // Clean up sensitive data
@@ -401,15 +364,15 @@ export const processWithdraw = async (
           case 'M-pesa':
           case 'E-Mola':
           case 'M-khesh':
-            return createMobileWalletToken(walletId, paymentDetails);
+            return createMobileWalletToken(walletId.toString(), paymentDetails);
           case 'Card':
           case 'MillenimBim':
           case 'BCI':
           case 'EcoBank':
           case 'StandardBank':
-            return createCardToken(walletId, paymentDetails) ?? '';
+            return createCardToken(walletId, paymentDetails);
           case 'Paypal':
-            return createPaypalToken(walletId, paymentDetails) ?? '';
+            return createPaypalToken(walletId, paymentDetails);
           default:
             return 'PAY OPTION INVALID';
         }
@@ -429,7 +392,7 @@ export const processWithdraw = async (
       const result = await withdraw2(token2);
       paymentDetails.transaction_reference = `VOID${shortID()}`;
       paymentDetails.transaction_reference_received =
-        result.body.output_TransactionID;
+        result.body?.output_TransactionID;
 
       console.log(paymentDetails);
 
@@ -440,7 +403,7 @@ export const processWithdraw = async (
             accountNumber,
             50,
             walletResult.id,
-            paymentDetails.transaction_reference, // fixed property name
+            paymentDetails.transaction_reference,
             typeof paymentDetails.transaction_reference_received === 'string'
               ? paymentDetails.transaction_reference_received
               : paymentDetails.transaction_reference_received?.toString(),
@@ -485,9 +448,8 @@ export const processRefund = async (
   try {
     const walletResult = await Wallet.findById(walletId);
 
-    if (walletResult.length > 0) {
-      console.log('A');
-      async function getPaymentToken(option: string): Promise<string> {
+    if (walletResult && walletResult.length > 0) {
+      const getPaymentToken = async (option: string): Promise<string> => {
         switch (option) {
           case 'mobileWallet':
             return createMobileWalletToken(walletId, paymentDetails);
@@ -498,9 +460,9 @@ export const processRefund = async (
           default:
             return 'PAY OPTION INVALID';
         }
-      }
+      };
 
-      const token = await getPaymentToken(paymentDetails.paymentMethod);
+      const token = await getPaymentToken(paymentDetails.paymentMethod || '');
       const result = await refund(token);
 
       if ([200, 401, 409].includes(result.status_code)) {
@@ -545,9 +507,8 @@ export const processQueryTransactionStatus = async (
   try {
     const walletResult = await Wallet.findById(walletId);
 
-    if (walletResult.length > 0) {
-      console.log('A');
-      async function getPaymentToken(option: string): Promise<string> {
+    if (walletResult && walletResult.length > 0) {
+      const getPaymentToken = async (option: string): Promise<string> => {
         switch (option) {
           case 'mobileWallet':
             return createMobileWalletToken(walletId, paymentDetails);
@@ -558,9 +519,9 @@ export const processQueryTransactionStatus = async (
           default:
             return 'PAY OPTION INVALID';
         }
-      }
+      };
 
-      const token = await getPaymentToken(paymentDetails.paymentMethod);
+      const token = await getPaymentToken(paymentDetails.paymentMethod || '');
       const result = await queryTransactionStatus(token);
 
       if ([200, 401, 409].includes(result.status_code)) {
@@ -617,11 +578,7 @@ async function pay(
         const json = JSON.parse(resultText);
         resultText = json;
       } catch (e) {
-        if (e instanceof Error) {
-          console.warn('Resposta não é um JSON válido:', e.message);
-        } else {
-          console.warn('Resposta não é um JSON válido:', e);
-        }
+        console.warn('Resposta não é um JSON válido:', e);
       }
       console.log('response:', resultText);
     }

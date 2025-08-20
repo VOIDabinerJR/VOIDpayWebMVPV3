@@ -3,12 +3,7 @@ import bcrypt from 'bcryptjs';
 import User from '../drizzle/models/userModel';
 import UserDetails from '../drizzle/models/userDetailsModel';
 import BusinessDetails from '../drizzle/models/businessModel';
-import App from '../drizzle/models/appModel';
-import Wallet from '../drizzle/models/walletModel';
-// import DynamicData from '../drizzle/models/dynamicDataModell';
-import { createLoginToken, createToken, decodeToken } from '../utils/jwt';
-import { sendEmail, sendRecoverEmail } from '../utils/email';
-import { populateUpdatedFields } from '../utils/functions.js';
+import { createLoginToken, decodeToken } from '../utils/jwt';
 
 interface UserData {
   firstName?: string;
@@ -16,7 +11,7 @@ interface UserData {
   username?: string;
   email?: string;
   password?: string;
-  userId?: string | number;
+  userId?: string;
 }
 
 interface UserDetailsData {
@@ -26,22 +21,38 @@ interface UserDetailsData {
   documentId?: string;
   phone?: string;
   alternativeEmail?: string;
-  userId?: string | number;
+  userId?: string;
 }
 
 interface BusinessDetailsData {
-  businessName?: string;
+  businessName: string;
   legalDocument?: string;
   website?: string;
   address?: string;
   email?: string;
-  userId?: string | number;
+  userId: string;
 }
 
 interface PagesController {
   registerUpdate(req: Request, res: Response): Promise<Response>;
   login(req: Request, res: Response): Promise<Response>;
 }
+
+// Função corrigida para popular campos atualizados
+const populateUpdatedFields = (
+  source: Record<string, any>,
+  target: Record<string, any>
+): void => {
+  Object.keys(source).forEach((key) => {
+    if (
+      source[key] !== undefined &&
+      source[key] !== null &&
+      source[key] !== ''
+    ) {
+      target[key] = source[key];
+    }
+  });
+};
 
 const pagesController: PagesController = {
   registerUpdate: async (req: Request, res: Response): Promise<Response> => {
@@ -57,7 +68,6 @@ const pagesController: PagesController = {
       address,
       postalCode,
       documentId,
-      documentIdImg,
       phone,
       alternativeEmail,
       businessName,
@@ -67,26 +77,25 @@ const pagesController: PagesController = {
     } = req.body;
 
     try {
-      const file = (req as any).file;
-      if (file) {
-        console.log('File uploaded:', file.filename);
+      if (!token) {
+        return res.status(400).json({ error: 'Token is required' });
       }
 
       const decoded = await decodeToken(token);
       const existingUser = await User.findById(decoded.token);
 
-      if (!existingUser) {
-        return res.status(400).json({ error: 'user not found' });
+      if (!existingUser || existingUser.length === 0) {
+        return res.status(400).json({ error: 'User not found' });
       }
 
       if (form === 'user') {
-        let userData: UserData = {};
-        let userDetails: UserDetailsData = {};
+        let userData: Partial<UserData> = {};
+        let userDetailsData: Partial<UserDetailsData> = {};
 
-        populateUpdatedFields(
-          { firstName, lastName, username, password },
-          userData
-        );
+        // Popular campos do usuário
+        populateUpdatedFields({ firstName, lastName, username }, userData);
+
+        // Popular campos de detalhes do usuário
         populateUpdatedFields(
           {
             dateOfBirth,
@@ -96,58 +105,62 @@ const pagesController: PagesController = {
             phone,
             alternativeEmail
           },
-          userDetails
+          userDetailsData
         );
 
-        userData.userId = decoded.token;
-        userDetails.userId = decoded.token;
+        // Adicionar userId aos detalhes
+        userDetailsData.userId = decoded.token;
 
+        // Processar senha se fornecida
         if (password && password.trim() !== '') {
+          if (password !== repeatPassword) {
+            return res.status(400).json({ error: 'Passwords do not match' });
+          }
           const hashedPassword = await bcrypt.hash(password, 8);
           userData.password = hashedPassword;
         }
 
-        // Handle User Details
-        const [existingUserDetails] = await UserDetails.findByUserId(
+        // Atualizar dados do usuário se houver campos para atualizar
+        if (Object.keys(userData).length > 0) {
+          const updatedUser = await User.update(decoded.token, userData);
+          if (!updatedUser || updatedUser.length === 0) {
+            return res.status(500).json({ error: 'Failed to update user' });
+          }
+        }
+
+        // Processar detalhes do usuário
+        const existingUserDetails = await UserDetails.findByUserId(
           decoded.token
         );
-        if (existingUserDetails.length <= 0) {
-          const [creationUserDetails] = await UserDetails.create(userDetails);
-          if (creationUserDetails.affectedRows === 1) {
-            return res.json({ status: 'success' });
-          }
-          return res.json({ status: 'failed' });
-        } else {
-          const [updateUserDetails] = await UserDetails.update(
-            userDetails,
-            existingUserDetails[0].id
+        if (existingUserDetails.length === 0) {
+          // Criar novos detalhes se não existirem
+          const creationResult = await UserDetails.create(
+            userDetailsData as any
           );
-          if (updateUserDetails.affectedRows === 1) {
-            return res.json({ status: 'success' });
+          if (creationResult.length === 0) {
+            return res
+              .status(500)
+              .json({ error: 'Failed to create user details' });
+          }
+        } else {
+          // Atualizar detalhes existentes
+          const updateResult = await UserDetails.update(
+            existingUserDetails[0].id,
+            userDetailsData
+          );
+          if (updateResult.length === 0) {
+            return res
+              .status(500)
+              .json({ error: 'Failed to update user details' });
           }
         }
 
-        // Handle User
-        const [existingUserData] = await User.findById(decoded.token);
-        if (existingUserData.length <= 0) {
-          const [creationUser] = await User.create(userData);
-          if (creationUser.affectedRows === 1) {
-            return res.json({ status: 'success' });
-          }
-          return res.json({ status: 'failed' });
-        } else {
-          const [updateUser] = await User.update(
-            userData,
-            existingUserData[0].id
-          );
-          if (updateUser.affectedRows === 1) {
-            return res.json({ status: 'success' });
-          }
-        }
-
-        return res.json({ error: '' });
+        return res.json({
+          status: 'success',
+          message: 'User data updated successfully'
+        });
       } else if (form === 'business') {
-        let businessDetails: BusinessDetailsData = {};
+        let businessDetails: Partial<BusinessDetailsData> = {};
 
         populateUpdatedFields(
           { businessName, legalDocument, website, address, email },
@@ -155,33 +168,40 @@ const pagesController: PagesController = {
         );
         businessDetails.userId = decoded.token;
 
-        const [existingBusinessDetails] = await BusinessDetails.findByUserId(
+        const existingBusinessDetails = await BusinessDetails.findByUserId(
           decoded.token
         );
-        if (existingBusinessDetails.length <= 0) {
-          const [creationBusinessDetails] =
-            await BusinessDetails.create(businessDetails);
-          if (creationBusinessDetails.affectedRows === 1) {
-            return res.json({ status: 'success' });
+        if (existingBusinessDetails.length === 0) {
+          const creationResult = await BusinessDetails.create(businessDetails);
+          if (creationResult.length === 0) {
+            return res
+              .status(500)
+              .json({ error: 'Failed to create business details' });
           }
-          return res.json({ status: 'failed' });
         } else {
-          const [updateBusinessDetails] = await BusinessDetails.update(
-            businessDetails,
-            existingBusinessDetails[0].id
+          const updateResult = await BusinessDetails.update(
+            existingBusinessDetails[0].id,
+            businessDetails
           );
-          if (updateBusinessDetails.affectedRows === 1) {
-            return res.json({ status: 'success' });
+          if (updateResult.length === 0) {
+            return res
+              .status(500)
+              .json({ error: 'Failed to update business details' });
           }
         }
 
-        return res.json({ error: '' });
+        return res.json({
+          status: 'success',
+          message: 'Business data updated successfully'
+        });
       }
 
       return res.status(400).json({ error: 'Invalid form type' });
-    } catch (error) {
-      console.error(error);
-      return res.status(500).json({ err: 'Server error', error: error });
+    } catch (error: any) {
+      console.error('Error in registerUpdate:', error);
+      return res
+        .status(500)
+        .json({ error: 'Server error', details: error.message });
     }
   },
 
@@ -189,23 +209,39 @@ const pagesController: PagesController = {
     const { email, password } = req.body;
 
     try {
-      const [user] = await User.findByEmail(email);
+      if (!email || !password) {
+        return res
+          .status(400)
+          .json({ error: 'Email and password are required' });
+      }
 
-      if (user.length <= 0) {
-        return res.status(404).json({ err: 'Email incorrect' });
+      const user = await User.findByEmail(email);
+
+      if (user.length === 0) {
+        return res.status(404).json({ error: 'Email incorrect' });
       }
 
       const passwordMatch = await bcrypt.compare(password, user[0].password);
       if (!passwordMatch) {
-        return res.status(401).json({ err: 'Password incorrect' });
+        return res.status(401).json({ error: 'Password incorrect' });
       }
 
       const token = await createLoginToken(user[0].id);
 
-      return res.status(200).json({ token });
-    } catch (error) {
-      console.error(error);
-      return res.status(500).json({ err: 'Server error' });
+      return res.status(200).json({
+        token,
+        user: {
+          id: user[0].id,
+          email: user[0].email,
+          firstName: user[0].firstName,
+          lastName: user[0].lastName
+        }
+      });
+    } catch (error: any) {
+      console.error('Error in login:', error);
+      return res
+        .status(500)
+        .json({ error: 'Server error', details: error.message });
     }
   }
 };
