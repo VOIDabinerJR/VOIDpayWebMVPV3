@@ -9,6 +9,8 @@ import {
   CardAction,
   CardFooter
 } from '@/components/ui/card';
+
+
 import {
   IconTrendingDown,
   IconTrendingUp,
@@ -61,11 +63,21 @@ interface EstatisticasData {
     }[];
   };
 }
+import { useAuth } from '@clerk/nextjs';
+
+
 
 async function getEstatisticas(): Promise<EstatisticasData> {
+  const { userId } = useAuth(); 
   try {
+    if (!userId) {
+      throw new Error('Usuário não autenticado');
+    }
     const response = await fetch('http://localhost:3000/api/statics', {
-      next: { revalidate: 60 } // ← Cache por 60 segundos
+      next: { revalidate: 60 },
+      // headers: {
+      //   'Authorization': `Bearer ${userId}`
+      // }
     });
 
     if (!response.ok) {
