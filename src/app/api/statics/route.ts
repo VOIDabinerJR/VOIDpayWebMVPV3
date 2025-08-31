@@ -46,6 +46,7 @@ interface EstatisticasData {
 
 export async function GET() {
   try {
+    console.log('Fetching statistics...');
     // Dados mockados baseados nos valores fornecidos
     const dados: EstatisticasData = {
       ganhosMensais: {
