@@ -17,7 +17,6 @@ interface UserData {
 }
 
 export const authService = {
-  
   register: async (userData: {
     firstName: string;
     lastName: string;
@@ -34,7 +33,8 @@ export const authService = {
     }
 
     const existingUser = await User.findByEmail(email);
-    if (existingUser.length > 0) {
+    console.log('Usuário existente:', existingUser);
+    if (existingUser) {
       throw new Error('Email is already in use');
     }
 
@@ -67,9 +67,7 @@ export const authService = {
   login: async (credentials: { email: string; password: string }) => {
     const { email, password } = credentials;
 
-
-    const users = await User.findByEmail(email);
-    const user = users[0];
+    const user = await User.findByEmail(email);
 
     if (!user) {
       throw new Error('Email incorrect');
@@ -89,8 +87,7 @@ export const authService = {
   },
 
   recoverAccount: async (email: string) => {
-    const users = await User.findByEmail(email);
-    const user = users[0];
+    const user = await User.findByEmail(email);
 
     if (!user) {
       throw new Error('Email incorrect');
@@ -118,8 +115,7 @@ export const authService = {
     }
 
     const decoded = await decodeToken(token);
-    const users = await User.findByEmail(decoded.email);
-    const existingUser = users[0];
+    const existingUser = await User.findByEmail(decoded.email);
 
     if (!existingUser) {
       throw new Error('User not found');
@@ -137,14 +133,12 @@ export const authService = {
     return { message: 'success' };
   },
 
-  loadData: async (data: {
-    token: string;
-  }) => {
-    console.log("aaaa" + data.token);
+  loadData: async (data: { token: string }) => {
+    console.log('aaaa' + data.token);
     const decoded = await decodeToken(data.token);
     // const [user, userStatistics] = await Promise.all([
     const [user] = await Promise.all([
-      DynamicData.getUserDataById(decoded.token),
+      DynamicData.getUserDataById(decoded.token)
       // Statistics.getStatistics(decoded.token)
     ]);
 

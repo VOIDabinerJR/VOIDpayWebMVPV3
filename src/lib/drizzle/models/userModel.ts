@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import { db } from '../db';
 import { users } from '../schema';
 
@@ -7,8 +7,8 @@ export const User = {
     const result = await db
       .select()
       .from(users)
-      .where(eq(users.email, email) && eq(users.userStatus, true));
-    return result;
+      .where(and(eq(users.email, email), eq(users.userStatus, true)));
+    return result[0] || null;
   },
 
   async returnEmail(id: string) {
